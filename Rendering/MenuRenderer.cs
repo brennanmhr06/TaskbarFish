@@ -138,18 +138,18 @@ internal static class MenuRenderer
 
     private static void DrawHeader(Graphics graphics)
     {
-        var headerRect = new Rectangle(10, 10, Metrics.TankWidth - 20, 38);
+        var headerRect = new Rectangle(10, 12, Metrics.TankWidth - 20, 40);
         Gfx.GlassCard(graphics, headerRect, 14);
 
         DrawPixelatedStars(graphics, headerRect);
 
-        using var titleFont = new Font("Courier New", 12.5f, FontStyle.Bold);
+        using var titleFont = new Font("Courier New", 13f, FontStyle.Bold);
         using var titleBrush = new SolidBrush(Palette.Ink);
-        graphics.DrawString("Aquarium", titleFont, titleBrush, 20, 17);
+        graphics.DrawString("Aquarium", titleFont, titleBrush, 20, 19);
 
-        var chip = new Rectangle(118, 19, 46, 18);
-        Gfx.FillRound(graphics, chip, 9, Color.FromArgb(180, 50, 120, 170), Color.FromArgb(180, 30, 80, 120));
-        using var chipFont = new Font("Courier New", 7f, FontStyle.Bold);
+        var chip = new Rectangle(120, 21, 48, 20);
+        Gfx.FillRound(graphics, chip, 10, Color.FromArgb(180, 50, 120, 170), Color.FromArgb(180, 30, 80, 120));
+        using var chipFont = new Font("Courier New", 7.5f, FontStyle.Bold);
         using var chipBrush = new SolidBrush(Color.White);
         Gfx.CenteredText(graphics, "LIVE", chipFont, chipBrush, chip);
 
@@ -208,20 +208,20 @@ internal static class MenuRenderer
 
     private static void DrawLevel(Graphics graphics)
     {
-        var card = new Rectangle(10, 50, Metrics.TankWidth - 20, 62);
+        var card = new Rectangle(10, 58, Metrics.TankWidth - 20, 66);
         Gfx.GlassCard(graphics, card, 14);
 
-        Gfx.SectionLabel(graphics, "AQUARIUM LEVEL", 20, 56);
+        Gfx.SectionLabel(graphics, "AQUARIUM LEVEL", 20, 64);
         using var font = new Font("Courier New", 13f, FontStyle.Bold);
         using var brush = new SolidBrush(Palette.Ink);
-        graphics.DrawString("4", font, brush, 20, 70);
+        graphics.DrawString("4", font, brush, 20, 78);
 
-        var expBar = new Rectangle(48, 80, Metrics.TankWidth - 180, 10);
+        var expBar = new Rectangle(48, 88, Metrics.TankWidth - 180, 10);
         DrawXpBar(graphics, expBar, 0.42f);
 
         using var expFont = new Font("Courier New", 7.5f);
         using var muted = new SolidBrush(Palette.InkMuted);
-        graphics.DrawString("210 / 500", expFont, muted, expBar.Right + 8, 79);
+        graphics.DrawString("210 / 500", expFont, muted, expBar.Right + 8, 87);
 
         Gfx.GlossyButton(graphics, Metrics.LevelButtonRect, Palette.Accent, Palette.AccentDeep);
         using var btnFont = new Font("Courier New", 8f, FontStyle.Bold);
@@ -261,12 +261,12 @@ internal static class MenuRenderer
 
     private static void DrawBasicFish(Graphics graphics)
     {
-        var card = new Rectangle(10, 120, Metrics.TankWidth - 20, 54);
+        var card = new Rectangle(10, 132, Metrics.TankWidth - 20, 56);
         Gfx.GlassCard(graphics, card, 14);
 
-        var iconWell = new Rectangle(18, 130, 34, 34);
+        var iconWell = new Rectangle(18, 142, 34, 34);
         Gfx.InsetWell(graphics, iconWell, 10);
-        Sprites.Fish(graphics, 35, 147, true, Color.FromArgb(255, 255, 168, 64), Color.FromArgb(255, 230, 110, 40));
+        Sprites.Fish(graphics, 35, 159, true, Color.FromArgb(255, 255, 168, 64), Color.FromArgb(255, 230, 110, 40));
 
         DrawPixelatedWaterEffect(graphics, iconWell);
 
@@ -274,10 +274,10 @@ internal static class MenuRenderer
         using var brush = new SolidBrush(Palette.Ink);
         using var muted = new SolidBrush(Palette.InkMuted);
         using var small = new Font("Courier New", 7.5f);
-        graphics.DrawString("Basic Fish", font, brush, 60, 132);
-        graphics.DrawString("Starter school", small, muted, 60, 151);
+        graphics.DrawString("Basic Fish", font, brush, 60, 144);
+        graphics.DrawString("Starter school", small, muted, 60, 163);
 
-        var count = new Rectangle(Metrics.TankWidth - 58, 134, 36, 26);
+        var count = new Rectangle(Metrics.TankWidth - 58, 146, 36, 26);
         Gfx.InsetWell(graphics, count, 8);
         using var countFont = new Font("Courier New", 9.5f, FontStyle.Bold);
         Gfx.CenteredText(graphics, "×3", countFont, brush, count);
@@ -294,43 +294,43 @@ internal static class MenuRenderer
 
     private static void DrawSize(Graphics graphics)
     {
-        var card = new Rectangle(10, 178, Metrics.TankWidth - 20, 48);
+        var card = new Rectangle(10, 196, Metrics.TankWidth - 20, 50);
         Gfx.GlassCard(graphics, card, 14);
-        Gfx.SectionLabel(graphics, "AQUARIUM SIZE", 20, 184);
+        Gfx.SectionLabel(graphics, "AQUARIUM SIZE", 20, 202);
 
         using var font = new Font("Courier New", 9f, FontStyle.Bold);
         using var brush = new SolidBrush(Palette.Ink);
         using var muted = new SolidBrush(Palette.InkMuted);
         using var mutedFont = new Font("Courier New", 8f);
-        graphics.DrawString("2.6 m", font, brush, 20, 198);
-        graphics.DrawString("wide", mutedFont, muted, 68, 200);
-        graphics.DrawString("0.92 m", font, brush, 120, 198);
-        graphics.DrawString("tall", mutedFont, muted, 172, 200);
+        graphics.DrawString("2.6 m", font, brush, 20, 216);
+        graphics.DrawString("wide", mutedFont, muted, 68, 218);
+        graphics.DrawString("0.92 m", font, brush, 120, 216);
+        graphics.DrawString("tall", mutedFont, muted, 172, 218);
 
-        var chip = new Rectangle(Metrics.TankWidth - 92, 190, 70, 18);
+        var chip = new Rectangle(Metrics.TankWidth - 92, 208, 70, 18);
         Gfx.FillRound(graphics, chip, 9, Color.FromArgb(175, 30, 80, 120), Color.FromArgb(175, 15, 50, 80));
         using var chipFont = new Font("Courier New", 7f, FontStyle.Bold);
         using var chipBrush = new SolidBrush(Color.White);
         Gfx.CenteredText(graphics, "COMPACT", chipFont, chipBrush, chip);
 
         using var line = new Pen(Color.FromArgb(50, 80, 120, 160), 1f);
-        graphics.DrawLine(line, 16, 214, 180, 214);
-        graphics.DrawLine(line, 16, 214, 16, 218);
-        graphics.DrawLine(line, 180, 214, 180, 218);
+        graphics.DrawLine(line, 16, 232, 180, 232);
+        graphics.DrawLine(line, 16, 232, 16, 236);
+        graphics.DrawLine(line, 180, 232, 180, 236);
     }
 
     private static void DrawPlacedFish(Graphics graphics)
     {
-        var card = new Rectangle(10, 234, Metrics.TankWidth - 20, 76);
+        var card = new Rectangle(10, 254, Metrics.TankWidth - 20, 76);
         Gfx.GlassCard(graphics, card, 14);
-        Gfx.SectionLabel(graphics, "PLACED FISH", 20, 240);
+        Gfx.SectionLabel(graphics, "PLACED FISH", 20, 260);
         using var countFont = new Font("Courier New", 8f, FontStyle.Bold);
         using var countBrush = new SolidBrush(Palette.Accent);
-        graphics.DrawString("0 / 6", countFont, countBrush, Metrics.TankWidth - 55, 239);
+        graphics.DrawString("0 / 6", countFont, countBrush, Metrics.TankWidth - 55, 259);
 
-        DrawSlotRow(graphics, 254, i =>
+        DrawSlotRow(graphics, 274, i =>
         {
-            var slot = SlotAt(254, i);
+            var slot = SlotAt(274, i);
             var lockRect = new Rectangle(slot.X + slot.Width / 2 - 7, slot.Y + slot.Height / 2 - 7, 14, 14);
             Sprites.Lock(graphics, lockRect);
         });
@@ -338,16 +338,16 @@ internal static class MenuRenderer
 
     private static void DrawPlacedDecorations(Graphics graphics)
     {
-        var card = new Rectangle(10, 318, Metrics.TankWidth - 20, 76);
+        var card = new Rectangle(10, 338, Metrics.TankWidth - 20, 76);
         Gfx.GlassCard(graphics, card, 14);
-        Gfx.SectionLabel(graphics, "PLACED DECORATIONS", 20, 324);
+        Gfx.SectionLabel(graphics, "PLACED DECORATIONS", 20, 344);
         using var countFont = new Font("Courier New", 8f, FontStyle.Bold);
         using var countBrush = new SolidBrush(Palette.Accent);
-        graphics.DrawString("0 / 6", countFont, countBrush, Metrics.TankWidth - 55, 323);
+        graphics.DrawString("0 / 6", countFont, countBrush, Metrics.TankWidth - 55, 343);
 
-        DrawSlotRow(graphics, 338, i =>
+        DrawSlotRow(graphics, 358, i =>
         {
-            var slot = SlotAt(338, i);
+            var slot = SlotAt(358, i);
             var lockRect = new Rectangle(slot.X + slot.Width / 2 - 7, slot.Y + slot.Height / 2 - 7, 14, 14);
             Sprites.Lock(graphics, lockRect);
         });
@@ -373,15 +373,17 @@ internal static class MenuRenderer
 
     private static void DrawDock(Graphics graphics)
     {
-        var dock = new Rectangle(10, Metrics.MenuHeight - 48, Metrics.TankWidth - 20, 38);
+        var dock = new Rectangle(10, Metrics.MenuHeight - 54, Metrics.TankWidth - 20, 44);
         Gfx.GlassCard(graphics, dock, 14);
 
         DrawPixelatedWaves(graphics, dock);
 
-        int iconSize = 30;
-        int spacing = 48;
-        int startX = dock.X + (dock.Width - (5 * spacing + iconSize)) / 2;
-        int y = dock.Y + 4;
+        int iconSize = 38;
+        int spacing = 50;
+        int totalButtons = 6;
+        int totalWidth = totalButtons * iconSize + (totalButtons - 1) * spacing;
+        int startX = dock.X + (dock.Width - totalWidth) / 2;
+        int y = dock.Y + 3;
 
         Color[] colors =
         [
@@ -395,30 +397,30 @@ internal static class MenuRenderer
 
         for (int i = 0; i < 6; i++)
         {
-            var iconRect = new Rectangle(startX + i * spacing, y, iconSize, iconSize);
+            var iconRect = new Rectangle(startX + i * (iconSize + spacing), y, iconSize, iconSize);
             bool selected = i == 0;
             if (selected)
             {
-                using var glow = new SolidBrush(Color.FromArgb(120, 90, 150, 220));
-                graphics.FillRectangle(glow, Rectangle.Inflate(iconRect, 5, 5));
+                using var glow = new SolidBrush(Color.FromArgb(140, 100, 170, 240));
+                graphics.FillRectangle(glow, Rectangle.Inflate(iconRect, 6, 6));
             }
 
             // Enhanced gradient fill with inner glow
             using (var fill = new LinearGradientBrush(
                        new Point(iconRect.Left, iconRect.Top),
                        new Point(iconRect.Left, iconRect.Bottom),
-                       selected ? Color.FromArgb(255, 130, 170, 220) : ControlPaint.Light(colors[i]),
+                       selected ? Color.FromArgb(255, 140, 180, 240) : ControlPaint.Light(colors[i]),
                        colors[i]))
-            using (var ring = new Pen(selected ? Color.FromArgb(255, 110, 160, 225) : Color.FromArgb(255, 70, 120, 180), selected ? 2.2f : 1.7f))
-            using (var path = Gfx.RoundedRect(iconRect, 7))
+            using (var ring = new Pen(selected ? Color.FromArgb(255, 120, 170, 240) : Color.FromArgb(255, 80, 130, 190), selected ? 2.5f : 2f))
+            using (var path = Gfx.RoundedRect(iconRect, 9))
             {
                 graphics.FillPath(fill, path);
                 graphics.DrawPath(ring, path);
 
                 if (selected)
                 {
-                    using var innerRing = new Pen(Color.FromArgb(80, 100, 160, 200), 0.8f);
-                    using var innerPath = Gfx.RoundedRect(Rectangle.Inflate(iconRect, -3, -3), 5);
+                    using var innerRing = new Pen(Color.FromArgb(90, 110, 170, 220), 1f);
+                    using var innerPath = Gfx.RoundedRect(Rectangle.Inflate(iconRect, -4, -4), 6);
                     graphics.DrawPath(innerRing, innerPath);
                 }
             }

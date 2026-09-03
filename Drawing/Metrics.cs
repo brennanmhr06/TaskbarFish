@@ -10,12 +10,12 @@ internal static class Metrics
     public const int BottomThickness = 8;
     public const int ButtonSize = 22;
     public const int ButtonMargin = 5;
-    public const int MenuHeight = 480;
+    public const int MenuHeight = 500;
 
     public static int TankFrameHeight => LidDepth + TankHeight;
 
-    public static Rectangle CloseButtonRect => new(TankWidth - 36, 14, 22, 22);
-    public static Rectangle LevelButtonRect => new(TankWidth - 68, 64, 50, 32);
+    public static Rectangle CloseButtonRect => new(TankWidth - 36, 16, 22, 22);
+    public static Rectangle LevelButtonRect => new(TankWidth - 68, 76, 50, 32);
 
     public static Rectangle MenuBounds => new(0, 0, TankWidth, MenuHeight);
 

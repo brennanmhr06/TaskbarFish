@@ -161,58 +161,59 @@ internal static class Sprites
     {
         int cx = bounds.X + bounds.Width / 2;
         int cy = bounds.Y + bounds.Height / 2;
+        float scale = bounds.Width / 30f; // Scale based on button size
 
         switch (kind)
         {
             case 0:
                 {
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 100, 150)), cx - 10, cy - 2, 20, 10);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 120, 180)), cx - 10, cy - 8, 20, 6);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 200, 100)), cx - 8, cy - 6, 16, 6);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 100, 150)), (int)(cx - 10 * scale), (int)(cy - 2 * scale), (int)(20 * scale), (int)(10 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 120, 180)), (int)(cx - 10 * scale), (int)(cy - 8 * scale), (int)(20 * scale), (int)(6 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 200, 100)), (int)(cx - 8 * scale), (int)(cy - 6 * scale), (int)(16 * scale), (int)(6 * scale));
                 }
                 break;
             case 1:
                 {
-                    graphics.FillEllipse(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 8, cy - 4, 16, 8);
-                    graphics.FillRectangle(new SolidBrush(Color.White), cx - 3, cy - 5, 6, 10);
-                    graphics.FillPolygon(new SolidBrush(Color.FromArgb(255, 255, 180, 80)), [new Point(cx - 9, cy), new Point(cx - 13, cy - 4), new Point(cx - 5, cy - 3)]);
+                    graphics.FillEllipse(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), (int)(cx - 8 * scale), (int)(cy - 4 * scale), (int)(16 * scale), (int)(8 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.White), (int)(cx - 3 * scale), (int)(cy - 5 * scale), (int)(6 * scale), (int)(10 * scale));
+                    graphics.FillPolygon(new SolidBrush(Color.FromArgb(255, 255, 180, 80)), [new Point((int)(cx - 9 * scale), (int)cy), new Point((int)(cx - 13 * scale), (int)(cy - 4 * scale)), new Point((int)(cx - 5 * scale), (int)(cy - 3 * scale))]);
                 }
                 break;
             case 2:
                 {
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 8, cy - 5, 5, 5);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx + 3, cy - 5, 5, 5);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 3, cy - 2, 10, 5);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 5, cy + 1, 10, 5);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 3, cy + 4, 6, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), (int)(cx - 8 * scale), (int)(cy - 5 * scale), (int)(5 * scale), (int)(5 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), (int)(cx + 3 * scale), (int)(cy - 5 * scale), (int)(5 * scale), (int)(5 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), (int)(cx - 3 * scale), (int)(cy - 2 * scale), (int)(10 * scale), (int)(5 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), (int)(cx - 5 * scale), (int)(cy + 1 * scale), (int)(10 * scale), (int)(5 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), (int)(cx - 3 * scale), (int)(cy + 4 * scale), (int)(6 * scale), (int)(3 * scale));
                 }
                 break;
             case 3:
                 {
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 10, cy - 1, 5, 3);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 3, cy - 3, 5, 4);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx + 5, cy, 5, 3);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 5, cy + 3, 5, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), (int)(cx - 10 * scale), (int)(cy - 1 * scale), (int)(5 * scale), (int)(3 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), (int)(cx - 3 * scale), (int)(cy - 3 * scale), (int)(5 * scale), (int)(4 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), (int)(cx + 5 * scale), (int)cy, (int)(5 * scale), (int)(3 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), (int)(cx - 5 * scale), (int)(cy + 3 * scale), (int)(5 * scale), (int)(3 * scale));
                 }
                 break;
             case 4:
                 {
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), cx - 2, cy - 1, 5, 3);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), cx + 3, cy - 4, 3, 8);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), cx + 6, cy - 1, 5, 3);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), cx, cy - 1, 5, 3);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), cx - 3, cy - 4, 3, 8);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), cx - 6, cy - 1, 5, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), (int)(cx - 2 * scale), (int)(cy - 1 * scale), (int)(5 * scale), (int)(3 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), (int)(cx + 3 * scale), (int)(cy - 4 * scale), (int)(3 * scale), (int)(8 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), (int)(cx + 6 * scale), (int)(cy - 1 * scale), (int)(5 * scale), (int)(3 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), (int)cx, (int)(cy - 1 * scale), (int)(5 * scale), (int)(3 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), (int)(cx - 3 * scale), (int)(cy - 4 * scale), (int)(3 * scale), (int)(8 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), (int)(cx - 6 * scale), (int)(cy - 1 * scale), (int)(5 * scale), (int)(3 * scale));
                 }
                 break;
             case 5:
                 {
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 120, 160)), cx - 8, cy - 5, 16, 12);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 1, cy - 5, 2, 12);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 8, cy - 1, 16, 2);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 5, cy - 8, 10, 3);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 8, cy - 7, 3, 3);
-                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx + 5, cy - 7, 3, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 120, 160)), (int)(cx - 8 * scale), (int)(cy - 5 * scale), (int)(16 * scale), (int)(12 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), (int)(cx - 1 * scale), (int)(cy - 5 * scale), (int)(2 * scale), (int)(12 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), (int)(cx - 8 * scale), (int)(cy - 1 * scale), (int)(16 * scale), (int)(2 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), (int)(cx - 5 * scale), (int)(cy - 8 * scale), (int)(10 * scale), (int)(3 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), (int)(cx - 8 * scale), (int)(cy - 7 * scale), (int)(3 * scale), (int)(3 * scale));
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), (int)(cx + 5 * scale), (int)(cy - 7 * scale), (int)(3 * scale), (int)(3 * scale));
                 }
                 break;
         }
