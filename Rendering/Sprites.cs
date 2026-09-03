@@ -1,0 +1,237 @@
+using System.Drawing.Drawing2D;
+
+namespace AquariumTaskbar.Rendering;
+
+internal static class Sprites
+{
+    public static void Fish(Graphics graphics, float x, float y, bool right, Color body, Color fin)
+    {
+        var state = graphics.Save();
+        graphics.TranslateTransform(x, y);
+        if (!right)
+        {
+            graphics.ScaleTransform(-1f, 1f);
+        }
+
+        using var tailBrush = new SolidBrush(fin);
+        graphics.FillRectangle(tailBrush, -24, -4, 8, 8);
+        graphics.FillRectangle(tailBrush, -28, -6, 6, 4);
+        graphics.FillRectangle(tailBrush, -28, 2, 6, 4);
+        graphics.FillRectangle(tailBrush, -26, -8, 4, 2);
+        graphics.FillRectangle(tailBrush, -26, 6, 4, 2);
+
+        using var bodyBrush = new SolidBrush(body);
+        graphics.FillRectangle(bodyBrush, -16, -8, 32, 16);
+        graphics.FillRectangle(bodyBrush, -18, -6, 4, 12);
+        graphics.FillRectangle(bodyBrush, 14, -6, 4, 12);
+        graphics.FillRectangle(bodyBrush, -12, -10, 24, 4);
+        graphics.FillRectangle(bodyBrush, -12, 6, 24, 4);
+
+        graphics.FillRectangle(tailBrush, -4, -14, 8, 6);
+        graphics.FillRectangle(tailBrush, 0, -16, 4, 4);
+        graphics.FillRectangle(tailBrush, 4, -14, 4, 4);
+
+        graphics.FillRectangle(tailBrush, 8, 4, 6, 6);
+        graphics.FillRectangle(tailBrush, 10, 6, 4, 4);
+        graphics.FillRectangle(tailBrush, 6, 6, 4, 4);
+
+        graphics.FillRectangle(Brushes.White, 8, -6, 6, 6);
+        graphics.FillRectangle(Brushes.Black, 10, -4, 3, 3);
+        graphics.FillRectangle(Brushes.White, 11, -3, 1, 1);
+
+        using var mouthBrush = new SolidBrush(Color.FromArgb(180, 180, 120, 80));
+        graphics.FillRectangle(mouthBrush, 16, -1, 4, 2);
+
+        using var scaleBrush = new SolidBrush(Color.FromArgb(60, 255, 255, 255));
+        graphics.FillRectangle(scaleBrush, -10, -4, 4, 4);
+        graphics.FillRectangle(scaleBrush, -4, -2, 4, 4);
+        graphics.FillRectangle(scaleBrush, 2, -4, 4, 4);
+        graphics.FillRectangle(scaleBrush, 8, -2, 4, 4);
+        graphics.FillRectangle(scaleBrush, -8, 2, 4, 4);
+        graphics.FillRectangle(scaleBrush, -2, 4, 4, 4);
+        graphics.FillRectangle(scaleBrush, 4, 2, 4, 4);
+
+        using var patchBrush = new SolidBrush(Color.FromArgb(50, 200, 150, 100));
+        graphics.FillRectangle(patchBrush, -6, -6, 4, 4);
+        graphics.FillRectangle(patchBrush, 6, 0, 4, 4);
+        graphics.FillRectangle(patchBrush, 0, 4, 4, 4);
+
+        graphics.Restore(state);
+    }
+
+    public static void Bubble(Graphics graphics, int x, int y, int size)
+    {
+        using (var fill = new LinearGradientBrush(
+                   new Rectangle(x, y, size, size),
+                   Color.FromArgb(90, 100, 160, 200),
+                   Color.FromArgb(20, 60, 100, 140),
+                   LinearGradientMode.ForwardDiagonal))
+        {
+            graphics.FillEllipse(fill, x, y, size, size);
+        }
+
+        using var rim = new Pen(Color.FromArgb(150, 80, 140, 180), 1);
+        graphics.DrawEllipse(rim, x, y, size, size);
+
+        int highlightSize = Math.Max(2, size / 3);
+        graphics.FillRectangle(Brushes.White, x + size / 4, y + size / 6, highlightSize, Math.Max(2, size / 4));
+
+        if (size > 4)
+        {
+            graphics.FillRectangle(Brushes.White, x + size / 2, y + size / 3, 1, 1);
+        }
+    }
+
+    public static void Decoration(Graphics graphics, Rectangle slot, int kind)
+    {
+        int cx = slot.X + slot.Width / 2;
+        int cy = slot.Y + slot.Height / 2 + 1;
+        switch (kind)
+        {
+            case 0:
+                using (var stem = new Pen(Color.FromArgb(255, 36, 110, 72), 2f) { StartCap = LineCap.Round })
+                using (var leaf = new SolidBrush(Color.FromArgb(255, 56, 168, 102)))
+                {
+                    graphics.DrawLine(stem, cx, cy + 10, cx, cy - 4);
+                    graphics.FillRectangle(leaf, cx - 8, cy - 6, 8, 11);
+                    graphics.FillRectangle(leaf, cx, cy - 8, 8, 12);
+                    graphics.FillRectangle(leaf, cx - 4, cy - 12, 7, 9);
+                }
+                break;
+            case 1:
+                using (var coral = new SolidBrush(Color.FromArgb(255, 232, 96, 118)))
+                {
+                    graphics.FillRectangle(coral, cx - 3, cy - 10, 6, 14);
+                    graphics.FillRectangle(coral, cx - 9, cy - 4, 7, 10);
+                    graphics.FillRectangle(coral, cx + 2, cy - 3, 7, 10);
+                }
+                break;
+            case 2:
+                using (var chest = new LinearGradientBrush(
+                           new Rectangle(cx - 9, cy - 6, 18, 14),
+                           Color.FromArgb(255, 196, 132, 56),
+                           Color.FromArgb(255, 140, 84, 32),
+                           LinearGradientMode.Vertical))
+                using (var lid = new SolidBrush(Color.FromArgb(255, 222, 168, 72)))
+                using (var latch = new SolidBrush(Color.FromArgb(255, 255, 214, 96)))
+                {
+                    graphics.FillRectangle(chest, cx - 8, cy - 2, 16, 10);
+                    graphics.FillRectangle(lid, cx - 9, cy - 7, 18, 6);
+                    graphics.FillRectangle(latch, cx - 2, cy - 2, 4, 5);
+                }
+                break;
+            case 3:
+                using (var rock = new SolidBrush(Color.FromArgb(255, 168, 150, 118)))
+                using (var hi = new SolidBrush(Color.FromArgb(90, 255, 255, 255)))
+                {
+                    graphics.FillRectangle(rock, cx - 9, cy - 2, 18, 12);
+                    graphics.FillRectangle(rock, cx - 5, cy - 7, 11, 10);
+                    graphics.FillRectangle(hi, cx - 3, cy - 5, 5, 3);
+                }
+                break;
+            case 4:
+                using (var shell = new SolidBrush(Color.FromArgb(255, 236, 214, 170)))
+                using (var pearl = new LinearGradientBrush(
+                           new Rectangle(cx - 4, cy - 5, 8, 8),
+                           Color.FromArgb(255, 255, 255, 255),
+                           Color.FromArgb(255, 180, 220, 240),
+                           LinearGradientMode.ForwardDiagonal))
+                {
+                    graphics.FillRectangle(shell, cx - 10, cy - 4, 20, 16);
+                    graphics.FillRectangle(pearl, cx - 4, cy - 4, 8, 8);
+                }
+                break;
+            default:
+                using (var wall = new SolidBrush(Color.FromArgb(255, 176, 148, 118)))
+                using (var roof = new SolidBrush(Color.FromArgb(255, 214, 92, 92)))
+                {
+                    graphics.FillRectangle(wall, cx - 7, cy - 1, 14, 10);
+                    graphics.FillPolygon(roof, [
+                        new Point(cx, cy - 10),
+                        new Point(cx + 10, cy),
+                        new Point(cx - 10, cy)
+                    ]);
+                    graphics.FillRectangle(Brushes.White, cx - 2, cy + 3, 4, 6);
+                }
+                break;
+        }
+    }
+
+    public static void NavGlyph(Graphics graphics, Rectangle bounds, int kind)
+    {
+        int cx = bounds.X + bounds.Width / 2;
+        int cy = bounds.Y + bounds.Height / 2;
+
+        switch (kind)
+        {
+            case 0:
+                {
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 100, 150)), cx - 10, cy - 2, 20, 10);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 120, 180)), cx - 10, cy - 8, 20, 6);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 200, 100)), cx - 8, cy - 6, 16, 6);
+                }
+                break;
+            case 1:
+                {
+                    graphics.FillEllipse(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 8, cy - 4, 16, 8);
+                    graphics.FillRectangle(new SolidBrush(Color.White), cx - 3, cy - 5, 6, 10);
+                    graphics.FillPolygon(new SolidBrush(Color.FromArgb(255, 255, 180, 80)), [new Point(cx - 9, cy), new Point(cx - 13, cy - 4), new Point(cx - 5, cy - 3)]);
+                }
+                break;
+            case 2:
+                {
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 8, cy - 5, 5, 5);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx + 3, cy - 5, 5, 5);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 3, cy - 2, 10, 5);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 5, cy + 1, 10, 5);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 60, 80)), cx - 3, cy + 4, 6, 3);
+                }
+                break;
+            case 3:
+                {
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 10, cy - 1, 5, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 3, cy - 3, 5, 4);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx + 5, cy, 5, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 140, 60)), cx - 5, cy + 3, 5, 3);
+                }
+                break;
+            case 4:
+                {
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), cx - 2, cy - 1, 5, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), cx + 3, cy - 4, 3, 8);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 80, 180, 100)), cx + 6, cy - 1, 5, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), cx, cy - 1, 5, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), cx - 3, cy - 4, 3, 8);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 60, 120, 180)), cx - 6, cy - 1, 5, 3);
+                }
+                break;
+            case 5:
+                {
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 220, 120, 160)), cx - 8, cy - 5, 16, 12);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 1, cy - 5, 2, 12);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 8, cy - 1, 16, 2);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 5, cy - 8, 10, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx - 8, cy - 7, 3, 3);
+                    graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 200, 60, 80)), cx + 5, cy - 7, 3, 3);
+                }
+                break;
+        }
+    }
+
+    public static void Lock(Graphics graphics, Rectangle bounds)
+    {
+        int cx = bounds.X + bounds.Width / 2;
+        int cy = bounds.Y + bounds.Height / 2;
+
+        using var lockBody = new SolidBrush(Color.FromArgb(200, 60, 90, 130));
+        graphics.FillRectangle(lockBody, cx - 7, cy - 3, 14, 12);
+
+        using var shackle = new SolidBrush(Color.FromArgb(200, 80, 120, 160));
+        graphics.FillRectangle(shackle, cx - 4, cy - 9, 8, 7);
+        graphics.FillRectangle(shackle, cx - 5, cy - 8, 10, 1);
+
+        using var keyhole = new SolidBrush(Color.FromArgb(150, 120, 160, 200));
+        graphics.FillRectangle(keyhole, cx - 2, cy, 4, 4);
+        graphics.FillRectangle(keyhole, cx - 1, cy + 2, 2, 3);
+    }
+}
