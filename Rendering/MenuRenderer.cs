@@ -7,50 +7,73 @@ internal static class MenuRenderer
     public static void Draw(Graphics graphics, float time)
     {
         var panel = new Rectangle(0, 0, Metrics.TankWidth - 1, Metrics.MenuHeight);
-        using (var shadow = Gfx.RoundedTopRect(new Rectangle(3, 5, panel.Width - 5, panel.Height - 3), 18))
-        using (var shadowFill = new SolidBrush(Color.FromArgb(40, 15, 40, 60)))
+        
+        // Enhanced multi-layered shadow with glow
+        using (var shadowGlow = Gfx.RoundedTopRect(new Rectangle(6, 8, panel.Width - 9, panel.Height - 5), 18))
+        using (var shadowGlowFill = new SolidBrush(Color.FromArgb(60, 20, 60, 100)))
+        {
+            graphics.FillPath(shadowGlowFill, shadowGlow);
+        }
+        
+        using (var shadow = Gfx.RoundedTopRect(new Rectangle(4, 6, panel.Width - 7, panel.Height - 4), 18))
+        using (var shadowFill = new SolidBrush(Color.FromArgb(50, 25, 55, 85)))
         {
             graphics.FillPath(shadowFill, shadow);
         }
 
+        // Vibrant multi-stop gradient background
         using (var path = Gfx.RoundedTopRect(panel, 18))
         using (var fill = new LinearGradientBrush(
                    panel,
-                   Color.FromArgb(248, 50, 100, 150),
-                   Color.FromArgb(238, 25, 60, 90),
+                   Color.FromArgb(252, 80, 140, 200),
+                   Color.FromArgb(248, 45, 100, 160),
                    LinearGradientMode.Vertical))
         {
             fill.InterpolationColors = new ColorBlend
             {
                 Colors =
                 [
-                    Color.FromArgb(250, 60, 110, 160),
-                    Color.FromArgb(245, 40, 80, 120),
-                    Color.FromArgb(240, 30, 70, 100),
-                    Color.FromArgb(235, 20, 50, 70)
+                    Color.FromArgb(255, 100, 160, 220),
+                    Color.FromArgb(252, 85, 145, 200),
+                    Color.FromArgb(248, 70, 130, 180),
+                    Color.FromArgb(245, 55, 115, 160),
+                    Color.FromArgb(242, 40, 100, 140),
+                    Color.FromArgb(238, 30, 85, 120)
                 ],
-                Positions = [0f, 0.33f, 0.66f, 1f]
+                Positions = [0f, 0.2f, 0.4f, 0.6f, 0.8f, 1f]
             };
             graphics.FillPath(fill, path);
+            
+            // Add top highlight/stripe
+            using var highlight = new LinearGradientBrush(
+                new Rectangle(panel.X, panel.Y, panel.Width, 25),
+                Color.FromArgb(60, 200, 230, 255),
+                Color.FromArgb(30, 150, 200, 240),
+                LinearGradientMode.Vertical);
+            graphics.FillRectangle(highlight, panel.X, panel.Y, panel.Width, 15);
         }
 
         DrawCaustics(graphics, panel, time);
         DrawPixelatedSeaweed(graphics, panel, time);
 
+        // Enhanced border with gradient stroke
         using (var path = Gfx.RoundedTopRect(panel, 18))
-        using (var outer = new Pen(Color.FromArgb(230, 120, 200, 255), 2f))
-        using (var inner = new Pen(Color.FromArgb(60, 50, 110, 150), 1.2f))
+        using (var outer = new Pen(Color.FromArgb(240, 160, 210, 255), 2.5f))
+        using (var outerGlow = new Pen(Color.FromArgb(40, 120, 190, 255), 1.5f))
         {
+            graphics.DrawPath(outerGlow, path);
             graphics.DrawPath(outer, path);
-            var inset = Rectangle.Inflate(panel, -3, -3);
-            inset.Height = panel.Height - 6;
-            using var innerPath = Gfx.RoundedTopRect(inset, 15);
+            
+            var inset = Rectangle.Inflate(panel, -4, -4);
+            inset.Height = panel.Height - 8;
+            using var innerPath = Gfx.RoundedTopRect(inset, 16);
+            using var inner = new Pen(Color.FromArgb(80, 100, 160, 200), 1.5f);
             graphics.DrawPath(inner, innerPath);
         }
 
         DrawHeader(graphics);
         DrawLevel(graphics);
-        DrawBasicFish(graphics);
+        DrawBasicFish(graphics, time);
         DrawSize(graphics);
         DrawPlacedFish(graphics);
         DrawPlacedDecorations(graphics);
@@ -61,22 +84,55 @@ internal static class MenuRenderer
     {
         var bounds = Metrics.ButtonBounds(menuOffset);
 
+        // Enhanced multi-layered shadow with glow
+        using (var shadowGlow = Gfx.RoundedRect(new Rectangle(bounds.X + 3, bounds.Y + 5, bounds.Width, bounds.Height), 8))
+        using (var shadowGlowFill = new SolidBrush(Color.FromArgb(70, 25, 55, 85)))
+        {
+            graphics.FillPath(shadowGlowFill, shadowGlow);
+        }
+        
         using (var shadow = Gfx.RoundedRect(new Rectangle(bounds.X + 2, bounds.Y + 3, bounds.Width, bounds.Height), 8))
-        using (var shadowFill = new SolidBrush(Color.FromArgb(55, 10, 30, 50)))
+        using (var shadowFill = new SolidBrush(Color.FromArgb(60, 18, 45, 70)))
         {
             graphics.FillPath(shadowFill, shadow);
         }
 
+        // Enhanced gradient fill with vibrant colors
         using (var path = Gfx.RoundedRect(bounds, 8))
         using (var fill = new LinearGradientBrush(
                    new Point(bounds.Left, bounds.Top),
                    new Point(bounds.Left, bounds.Bottom),
-                   Color.FromArgb(255, 80, 160, 220),
-                   Color.FromArgb(255, 40, 100, 160)))
-        using (var edge = new Pen(Palette.ButtonEdge, 2.2f))
+                   Color.FromArgb(255, 120, 200, 255),
+                   Color.FromArgb(255, 70, 150, 210)))
         {
+            fill.InterpolationColors = new ColorBlend
+            {
+                Colors =
+                [
+                    Color.FromArgb(255, 140, 220, 255),
+                    Color.FromArgb(255, 120, 200, 255),
+                    Color.FromArgb(255, 90, 170, 230),
+                    Color.FromArgb(255, 70, 150, 210)
+                ],
+                Positions = [0f, 0.3f, 0.7f, 1f]
+            };
             graphics.FillPath(fill, path);
+            
+            // Add top highlight
+            using var topHighlight = new SolidBrush(Color.FromArgb(120, 230, 255, 255));
+            graphics.FillRectangle(topHighlight, bounds.X + 3, bounds.Y + 1, bounds.Width - 6, 3);
+            
+            // Enhanced outer edge with glow
+            using var edge = new Pen(Color.FromArgb(255, 150, 210, 255), 2.5f);
             graphics.DrawPath(edge, path);
+            
+            using var edgeGlow = new Pen(Color.FromArgb(100, 180, 230, 255), 1.5f);
+            graphics.DrawPath(edgeGlow, path);
+            
+            // Enhanced inner edge
+            using var innerEdge = new Pen(Color.FromArgb(120, 160, 210, 250), 1f);
+            using var innerPath = Gfx.RoundedRect(Rectangle.Inflate(bounds, -2, -2), 6);
+            graphics.DrawPath(innerEdge, innerPath);
         }
 
         int cx = bounds.X + bounds.Width / 2;
@@ -85,8 +141,16 @@ internal static class MenuRenderer
             ? [new(cx, cy - 6), new(cx + 7, cy + 4), new(cx - 7, cy + 4)]
             : [new(cx - 7, cy - 4), new(cx + 7, cy - 4), new(cx, cy + 6)];
 
-        using var arrowBrush = new SolidBrush(Color.FromArgb(255, 240, 250, 255));
+        // Enhanced arrow with glow
+        using var arrowBrush = new SolidBrush(Color.FromArgb(255, 250, 255, 255));
         graphics.FillPolygon(arrowBrush, arrow);
+        
+        using var arrowGlow = new Pen(Color.FromArgb(150, 200, 255, 255), 2f)
+        {
+            StartCap = LineCap.Round,
+            EndCap = LineCap.Round
+        };
+        graphics.DrawPolygon(arrowGlow, arrow);
     }
 
     private static void DrawCaustics(Graphics graphics, Rectangle panel, float time)
@@ -95,19 +159,39 @@ internal static class MenuRenderer
         using var path = Gfx.RoundedTopRect(panel, 18);
         graphics.SetClip(path);
 
-        using var pen = new Pen(Color.FromArgb(25, 60, 120, 160), 2f);
-        for (int band = 0; band < 4; band++)
+        // Enhanced caustics with multiple wave layers and vibrant colors
+        using var pen = new Pen(Color.FromArgb(35, 100, 170, 230), 2.5f);
+        using var penGlow = new Pen(Color.FromArgb(25, 130, 200, 255), 1.5f);
+        
+        for (int band = 0; band < 5; band++)
         {
-            int y = 30 + band * 80;
-            var points = new PointF[6];
+            int y = 25 + band * 75;
+            var points = new PointF[7];
             for (int i = 0; i < points.Length; i++)
             {
-                float x = i * (panel.Width / 5f);
-                float wave = MathF.Sin(time * 0.7f + i * 1.2f + band) * 4f;
-                points[i] = new PointF(x, y + wave);
+                float x = i * (panel.Width / 6f);
+                float wave = MathF.Sin(time * 0.8f + i * 1.3f + band * 0.5f) * 5f;
+                float secondaryWave = MathF.Cos(time * 0.5f + i * 0.8f + band) * 2f;
+                points[i] = new PointF(x, y + wave + secondaryWave);
             }
 
+            graphics.DrawLines(penGlow, points);
             graphics.DrawLines(pen, points);
+        }
+
+        // Add additional light rays
+        using var rayPen = new Pen(Color.FromArgb(20, 150, 220, 255), 1f);
+        for (int ray = 0; ray < 3; ray++)
+        {
+            float rayX = panel.Width * 0.2f + ray * panel.Width * 0.3f + MathF.Sin(time * 0.3f + ray) * 15f;
+            var rayPoints = new PointF[4];
+            for (int i = 0; i < rayPoints.Length; i++)
+            {
+                float rayY = 10 + i * 80;
+                float wave = MathF.Sin(time * 0.4f + i + ray) * 3f;
+                rayPoints[i] = new PointF(rayX + wave, rayY);
+            }
+            graphics.DrawLines(rayPen, rayPoints);
         }
 
         DrawPixelatedBubbles(graphics, panel, time);
@@ -117,22 +201,46 @@ internal static class MenuRenderer
 
     private static void DrawPixelatedBubbles(Graphics graphics, Rectangle panel, float time)
     {
-        var bubbleCount = 8;
+        var bubbleCount = 12;
         for (int i = 0; i < bubbleCount; i++)
         {
-            float t = time * 0.3f + i * 0.8f;
-            float x = panel.Width * 0.15f + (i % 3) * panel.Width * 0.3f + MathF.Sin(t) * 10f;
-            float y = panel.Height * 0.3f + ((t * 50f) % (panel.Height * 0.6f));
-            float size = 4f + MathF.Sin(t * 2f + i) * 2f;
+            float t = time * 0.4f + i * 0.7f;
+            float x = panel.Width * 0.1f + (i % 4) * panel.Width * 0.25f + MathF.Sin(t * 1.2f + i) * 12f;
+            float y = panel.Height * 0.25f + ((t * 45f) % (panel.Height * 0.65f));
+            float size = 3f + MathF.Sin(t * 2.5f + i * 0.5f) * 2.5f;
 
             int pixelSize = (int)size;
             var bubbleRect = new Rectangle((int)x, (int)y, pixelSize, pixelSize);
 
-            using var bubbleFill = new SolidBrush(Color.FromArgb(40, 120, 180, 220));
+            // Enhanced bubble with gradient effect
+            using var bubbleFill = new SolidBrush(Color.FromArgb(50, 140, 200, 255));
             graphics.FillRectangle(bubbleFill, bubbleRect);
 
-            using var highlight = new SolidBrush(Color.FromArgb(60, 150, 200, 255));
+            // Enhanced highlight with glow
+            using var highlight = new SolidBrush(Color.FromArgb(80, 200, 255, 255));
             graphics.FillRectangle(highlight, bubbleRect.X + 1, bubbleRect.Y + 1, 1, 1);
+            
+            // Add subtle outer glow
+            using var glow = new SolidBrush(Color.FromArgb(30, 100, 180, 230));
+            graphics.FillRectangle(glow, bubbleRect.X - 1, bubbleRect.Y - 1, pixelSize + 2, pixelSize + 2);
+        }
+        
+        // Add larger floating bubbles
+        for (int i = 0; i < 4; i++)
+        {
+            float t = time * 0.25f + i * 1.2f;
+            float x = panel.Width * 0.2f + i * panel.Width * 0.2f + MathF.Cos(t * 0.8f + i) * 20f;
+            float y = panel.Height * 0.4f + ((t * 35f) % (panel.Height * 0.5f));
+            float size = 6f + MathF.Sin(t * 1.5f + i) * 3f;
+
+            int pixelSize = (int)size;
+            var bubbleRect = new Rectangle((int)x, (int)y, pixelSize, pixelSize);
+
+            using var bubbleFill = new SolidBrush(Color.FromArgb(60, 160, 220, 255));
+            graphics.FillRectangle(bubbleFill, bubbleRect);
+
+            using var highlight = new SolidBrush(Color.FromArgb(100, 230, 255, 255));
+            graphics.FillRectangle(highlight, bubbleRect.X + 1, bubbleRect.Y + 1, 2, 2);
         }
     }
 
@@ -148,58 +256,109 @@ internal static class MenuRenderer
         graphics.DrawString("Aquarium", titleFont, titleBrush, 20, 19);
 
         var chip = new Rectangle(120, 21, 48, 20);
-        Gfx.FillRound(graphics, chip, 10, Color.FromArgb(180, 50, 120, 170), Color.FromArgb(180, 30, 80, 120));
+        Gfx.FillRound(graphics, chip, 10, Color.FromArgb(200, 70, 140, 190), Color.FromArgb(200, 50, 110, 160));
         using var chipFont = new Font("Courier New", 7.5f, FontStyle.Bold);
         using var chipBrush = new SolidBrush(Color.White);
         Gfx.CenteredText(graphics, "LIVE", chipFont, chipBrush, chip);
+        
+        // Add chip glow
+        using var chipGlow = new SolidBrush(Color.FromArgb(60, 100, 170, 220));
+        graphics.FillRectangle(chipGlow, chip.X - 1, chip.Y - 1, chip.Width + 2, chip.Height + 2);
 
         DrawPixelatedDroplets(graphics, headerRect);
 
         var closeRect = Metrics.CloseButtonRect;
+        
+        // Enhanced close button with gradient and glow
         using (var closeFill = new LinearGradientBrush(
                    new Point(closeRect.Left, closeRect.Top),
                    new Point(closeRect.Left, closeRect.Bottom),
-                   Color.FromArgb(255, 70, 110, 150),
-                   Color.FromArgb(255, 40, 80, 110)))
-        using (var ring = new Pen(Color.FromArgb(200, 130, 170, 220), 1.5f))
+                   Color.FromArgb(255, 100, 160, 210),
+                   Color.FromArgb(255, 60, 120, 170)))
         {
+            closeFill.InterpolationColors = new ColorBlend
+            {
+                Colors =
+                [
+                    Color.FromArgb(255, 120, 180, 230),
+                    Color.FromArgb(255, 100, 160, 210),
+                    Color.FromArgb(255, 80, 140, 190),
+                    Color.FromArgb(255, 60, 120, 170)
+                ],
+                Positions = [0f, 0.3f, 0.7f, 1f]
+            };
             graphics.FillEllipse(closeFill, closeRect);
+            
+            // Add top highlight
+            using var topHighlight = new SolidBrush(Color.FromArgb(100, 200, 240, 255));
+            graphics.FillEllipse(topHighlight, closeRect.X + 2, closeRect.Y + 1, closeRect.Width - 4, 4);
+        }
+        
+        using (var ring = new Pen(Color.FromArgb(230, 160, 210, 255), 2f))
+        using (var ringGlow = new Pen(Color.FromArgb(120, 180, 230, 255), 1.2f))
+        {
+            graphics.DrawEllipse(ringGlow, closeRect);
             graphics.DrawEllipse(ring, closeRect);
         }
 
-        using var closeX = new Pen(Color.FromArgb(255, 210, 230, 250), 2f)
+        using var closeX = new Pen(Color.FromArgb(255, 240, 250, 255), 2.5f)
         {
             StartCap = LineCap.Round,
             EndCap = LineCap.Round
         };
         graphics.DrawLine(closeX, closeRect.X + 6, closeRect.Y + 6, closeRect.Right - 6, closeRect.Bottom - 6);
         graphics.DrawLine(closeX, closeRect.Right - 6, closeRect.Y + 6, closeRect.X + 6, closeRect.Bottom - 6);
+        
+        // Add X glow
+        using var closeXGlow = new Pen(Color.FromArgb(150, 200, 255, 255), 1.5f)
+        {
+            StartCap = LineCap.Round,
+            EndCap = LineCap.Round
+        };
+        graphics.DrawLine(closeXGlow, closeRect.X + 6, closeRect.Y + 6, closeRect.Right - 6, closeRect.Bottom - 6);
+        graphics.DrawLine(closeXGlow, closeRect.Right - 6, closeRect.Y + 6, closeRect.X + 6, closeRect.Bottom - 6);
     }
 
     private static void DrawPixelatedDroplets(Graphics graphics, Rectangle bounds)
     {
-        using var droplet = new SolidBrush(Color.FromArgb(100, 80, 140, 200));
+        using var droplet = new SolidBrush(Color.FromArgb(120, 100, 170, 230));
+        using var dropletGlow = new SolidBrush(Color.FromArgb(80, 140, 210, 255));
+        
+        graphics.FillRectangle(dropletGlow, bounds.X + 3, bounds.Y + 1, 3, 3);
         graphics.FillRectangle(droplet, bounds.X + 4, bounds.Y + 2, 2, 2);
+        
+        graphics.FillRectangle(dropletGlow, bounds.X + 7, bounds.Y + 5, 2, 2);
         graphics.FillRectangle(droplet, bounds.X + 8, bounds.Y + 6, 1, 1);
+        
+        graphics.FillRectangle(dropletGlow, bounds.Right - 7, bounds.Y + 3, 3, 3);
         graphics.FillRectangle(droplet, bounds.Right - 6, bounds.Y + 4, 2, 2);
+        
+        graphics.FillRectangle(dropletGlow, bounds.Right - 11, bounds.Y + 7, 2, 2);
         graphics.FillRectangle(droplet, bounds.Right - 10, bounds.Y + 8, 1, 1);
     }
 
     private static void DrawPixelatedStars(Graphics graphics, Rectangle bounds)
     {
-        using var star = new SolidBrush(Color.FromArgb(80, 200, 220, 255));
-        using var starDark = new SolidBrush(Color.FromArgb(60, 150, 180, 220));
+        using var star = new SolidBrush(Color.FromArgb(100, 220, 255, 255));
+        using var starGlow = new SolidBrush(Color.FromArgb(70, 180, 230, 255));
+        using var starDark = new SolidBrush(Color.FromArgb(80, 170, 210, 240));
 
+        // First star with glow
+        graphics.FillRectangle(starGlow, bounds.X + 129, bounds.Y + 7, 3, 3);
         graphics.FillRectangle(star, bounds.X + 130, bounds.Y + 8, 2, 2);
         graphics.FillRectangle(star, bounds.X + 132, bounds.Y + 6, 2, 2);
         graphics.FillRectangle(star, bounds.X + 134, bounds.Y + 8, 2, 2);
         graphics.FillRectangle(star, bounds.X + 132, bounds.Y + 10, 2, 2);
 
+        // Second star with glow
+        graphics.FillRectangle(starGlow, bounds.X + 141, bounds.Y + 11, 3, 3);
         graphics.FillRectangle(starDark, bounds.X + 142, bounds.Y + 12, 2, 2);
         graphics.FillRectangle(starDark, bounds.X + 144, bounds.Y + 10, 2, 2);
         graphics.FillRectangle(starDark, bounds.X + 146, bounds.Y + 12, 2, 2);
         graphics.FillRectangle(starDark, bounds.X + 144, bounds.Y + 14, 2, 2);
 
+        // Third star with glow
+        graphics.FillRectangle(starGlow, bounds.X + 151, bounds.Y + 17, 3, 3);
         graphics.FillRectangle(star, bounds.X + 152, bounds.Y + 18, 2, 2);
         graphics.FillRectangle(star, bounds.X + 154, bounds.Y + 16, 2, 2);
         graphics.FillRectangle(star, bounds.X + 156, bounds.Y + 18, 2, 2);
@@ -231,10 +390,15 @@ internal static class MenuRenderer
 
     private static void DrawXpBar(Graphics graphics, Rectangle track, float progress)
     {
-        Gfx.FillRound(graphics, track, 5, Color.FromArgb(100, 18, 50, 80), Color.FromArgb(130, 10, 35, 55));
-        using (var inset = new Pen(Color.FromArgb(65, 70, 130, 175), 1.2f))
-        using (var path = Gfx.RoundedRect(track, 5))
+        // Enhanced track with gradient
+        using var path = Gfx.RoundedRect(track, 5);
+        using var trackFill = new LinearGradientBrush(track, Color.FromArgb(120, 25, 60, 95), Color.FromArgb(150, 15, 45, 75), LinearGradientMode.Vertical);
+        graphics.FillPath(trackFill, path);
+        
+        using (var inset = new Pen(Color.FromArgb(85, 90, 150, 195), 1.5f))
+        using (var insetGlow = new Pen(Color.FromArgb(60, 110, 170, 210), 0.8f))
         {
+            graphics.DrawPath(insetGlow, path);
             graphics.DrawPath(inset, path);
         }
 
@@ -244,29 +408,53 @@ internal static class MenuRenderer
             graphics.SetClip(clipPath);
             int fillWidth = Math.Max(8, (int)(track.Width * progress));
             var filled = new Rectangle(track.X, track.Y, fillWidth, track.Height);
-            Gfx.FillRound(graphics, filled, 5, Color.FromArgb(255, 70, 130, 190), Color.FromArgb(255, 40, 90, 130));
+            
+            // Enhanced fill with vibrant gradient
+            using var fill = new LinearGradientBrush(filled, Color.FromArgb(255, 100, 170, 230), Color.FromArgb(255, 60, 120, 180), LinearGradientMode.Vertical);
+            fill.InterpolationColors = new ColorBlend
+            {
+                Colors =
+                [
+                    Color.FromArgb(255, 120, 190, 255),
+                    Color.FromArgb(255, 100, 170, 230),
+                    Color.FromArgb(255, 80, 150, 210),
+                    Color.FromArgb(255, 60, 120, 180)
+                ],
+                Positions = [0f, 0.3f, 0.7f, 1f]
+            };
+            graphics.FillRectangle(fill, filled);
+            
+            // Enhanced shine effect
             using var shine = new LinearGradientBrush(
                 filled,
-                Color.FromArgb(165, 90, 130, 175),
-                Color.FromArgb(20, 60, 100, 140),
+                Color.FromArgb(180, 150, 200, 255),
+                Color.FromArgb(40, 100, 160, 200),
                 LinearGradientMode.Vertical);
-            graphics.FillRectangle(shine, filled.X, filled.Y, filled.Width, 5);
+            graphics.FillRectangle(shine, filled.X, filled.Y, filled.Width, 6);
+            
+            // Top highlight stripe
+            using var topHighlight = new SolidBrush(Color.FromArgb(120, 220, 255, 255));
+            graphics.FillRectangle(topHighlight, filled.X, filled.Y, filled.Width, 2);
 
-            using var tip = new SolidBrush(Color.FromArgb(100, 110, 155, 195));
-            graphics.FillEllipse(tip, filled.Right - 8, filled.Y - 1, 9, filled.Height + 2);
+            // Enhanced tip with glow
+            using var tip = new SolidBrush(Color.FromArgb(140, 160, 210, 255));
+            graphics.FillEllipse(tip, filled.Right - 10, filled.Y - 2, 11, filled.Height + 4);
+            
+            using var tipGlow = new SolidBrush(Color.FromArgb(80, 140, 200, 255));
+            graphics.FillEllipse(tipGlow, filled.Right - 8, filled.Y - 1, 9, filled.Height + 2);
         }
 
         graphics.Restore(clip);
     }
 
-    private static void DrawBasicFish(Graphics graphics)
+    private static void DrawBasicFish(Graphics graphics, float time)
     {
         var card = new Rectangle(10, 132, Metrics.TankWidth - 20, 56);
         Gfx.GlassCard(graphics, card, 14);
 
         var iconWell = new Rectangle(18, 142, 34, 34);
         Gfx.InsetWell(graphics, iconWell, 10);
-        Sprites.Fish(graphics, 35, 159, true, Color.FromArgb(255, 255, 168, 64), Color.FromArgb(255, 230, 110, 40));
+        Sprites.Fish(graphics, 35, 159, true, Color.FromArgb(255, 255, 168, 64), Color.FromArgb(255, 230, 110, 40), time, 0.4f, 0.5f);
 
         DrawPixelatedWaterEffect(graphics, iconWell);
 
@@ -285,10 +473,19 @@ internal static class MenuRenderer
 
     private static void DrawPixelatedWaterEffect(Graphics graphics, Rectangle bounds)
     {
-        using var water = new SolidBrush(Color.FromArgb(40, 80, 140, 200));
+        using var water = new SolidBrush(Color.FromArgb(60, 100, 170, 230));
+        using var waterGlow = new SolidBrush(Color.FromArgb(40, 140, 210, 255));
+        
+        graphics.FillRectangle(waterGlow, bounds.Right + 1, bounds.Y + 3, 3, 3);
         graphics.FillRectangle(water, bounds.Right + 2, bounds.Y + 4, 2, 2);
+        
+        graphics.FillRectangle(waterGlow, bounds.Right + 3, bounds.Y + 7, 2, 2);
         graphics.FillRectangle(water, bounds.Right + 4, bounds.Y + 8, 1, 1);
+        
+        graphics.FillRectangle(waterGlow, bounds.X - 3, bounds.Bottom - 7, 3, 3);
         graphics.FillRectangle(water, bounds.X - 2, bounds.Bottom - 6, 2, 2);
+        
+        graphics.FillRectangle(waterGlow, bounds.X - 5, bounds.Bottom - 11, 2, 2);
         graphics.FillRectangle(water, bounds.X - 4, bounds.Bottom - 10, 1, 1);
     }
 
@@ -387,41 +584,71 @@ internal static class MenuRenderer
 
         Color[] colors =
         [
-            Color.FromArgb(255, 70, 110, 160),
-            Color.FromArgb(255, 80, 120, 170),
-            Color.FromArgb(255, 90, 130, 180),
-            Color.FromArgb(255, 80, 120, 170),
-            Color.FromArgb(255, 70, 110, 160),
-            Color.FromArgb(255, 80, 120, 170)
+            Color.FromArgb(255, 100, 160, 220),
+            Color.FromArgb(255, 110, 170, 230),
+            Color.FromArgb(255, 120, 180, 240),
+            Color.FromArgb(255, 110, 170, 230),
+            Color.FromArgb(255, 100, 160, 220),
+            Color.FromArgb(255, 110, 170, 230)
         ];
 
         for (int i = 0; i < 6; i++)
         {
             var iconRect = new Rectangle(startX + i * (iconSize + spacing), y, iconSize, iconSize);
             bool selected = i == 0;
+            
             if (selected)
             {
-                using var glow = new SolidBrush(Color.FromArgb(140, 100, 170, 240));
-                graphics.FillRectangle(glow, Rectangle.Inflate(iconRect, 6, 6));
+                // Enhanced glow effect for selected item
+                using var glowOuter = new SolidBrush(Color.FromArgb(100, 140, 200, 255));
+                graphics.FillRectangle(glowOuter, Rectangle.Inflate(iconRect, 8, 8));
+                
+                using var glowInner = new SolidBrush(Color.FromArgb(80, 160, 220, 255));
+                graphics.FillRectangle(glowInner, Rectangle.Inflate(iconRect, 5, 5));
             }
 
-            // Enhanced gradient fill with inner glow
+            // Enhanced gradient fill with multi-stop interpolation
+            using (var path = Gfx.RoundedRect(iconRect, 9))
             using (var fill = new LinearGradientBrush(
                        new Point(iconRect.Left, iconRect.Top),
                        new Point(iconRect.Left, iconRect.Bottom),
-                       selected ? Color.FromArgb(255, 140, 180, 240) : ControlPaint.Light(colors[i]),
+                       selected ? Color.FromArgb(255, 160, 210, 255) : ControlPaint.Light(colors[i]),
                        colors[i]))
-            using (var ring = new Pen(selected ? Color.FromArgb(255, 120, 170, 240) : Color.FromArgb(255, 80, 130, 190), selected ? 2.5f : 2f))
-            using (var path = Gfx.RoundedRect(iconRect, 9))
             {
+                fill.InterpolationColors = new ColorBlend
+                {
+                    Colors =
+                    [
+                        selected ? Color.FromArgb(255, 180, 230, 255) : ControlPaint.LightLight(colors[i]),
+                        selected ? Color.FromArgb(255, 160, 210, 255) : ControlPaint.Light(colors[i]),
+                        selected ? Color.FromArgb(255, 130, 190, 245) : colors[i],
+                        selected ? Color.FromArgb(255, 110, 170, 235) : Color.FromArgb(255, colors[i].R - 20, colors[i].G - 20, colors[i].B - 20)
+                    ],
+                    Positions = [0f, 0.3f, 0.7f, 1f]
+                };
                 graphics.FillPath(fill, path);
+                
+                // Add top highlight
+                using var topHighlight = new SolidBrush(Color.FromArgb(150, 230, 255, 255));
+                graphics.FillRectangle(topHighlight, iconRect.X + 3, iconRect.Y + 1, iconRect.Width - 6, 3);
+                
+                // Enhanced outer ring with glow
+                using var ring = new Pen(selected ? Color.FromArgb(255, 150, 210, 255) : Color.FromArgb(255, 100, 160, 220), selected ? 3f : 2.5f);
                 graphics.DrawPath(ring, path);
+                
+                using var ringGlow = new Pen(selected ? Color.FromArgb(120, 180, 240, 255) : Color.FromArgb(80, 140, 200, 255), 1.5f);
+                graphics.DrawPath(ringGlow, path);
 
                 if (selected)
                 {
-                    using var innerRing = new Pen(Color.FromArgb(90, 110, 170, 220), 1f);
-                    using var innerPath = Gfx.RoundedRect(Rectangle.Inflate(iconRect, -4, -4), 6);
+                    // Enhanced inner ring for selected state
+                    using var innerRing = new Pen(Color.FromArgb(120, 160, 210, 250), 1.2f);
+                    using var innerPath = Gfx.RoundedRect(Rectangle.Inflate(iconRect, -3, -3), 7);
                     graphics.DrawPath(innerRing, innerPath);
+                    
+                    // Add center glow
+                    using var centerGlow = new SolidBrush(Color.FromArgb(60, 180, 230, 255));
+                    graphics.FillEllipse(centerGlow, iconRect.X + iconRect.Width / 2 - 4, iconRect.Y + iconRect.Height / 2 - 4, 8, 8);
                 }
             }
 
@@ -431,11 +658,24 @@ internal static class MenuRenderer
 
     private static void DrawPixelatedWaves(Graphics graphics, Rectangle bounds)
     {
-        using var wave = new SolidBrush(Color.FromArgb(30, 60, 100, 140));
-        for (int i = 0; i < bounds.Width; i += 8)
+        using var wave = new SolidBrush(Color.FromArgb(50, 80, 130, 180));
+        using var waveGlow = new SolidBrush(Color.FromArgb(35, 110, 170, 220));
+        
+        for (int i = 0; i < bounds.Width; i += 6)
         {
-            int waveHeight = 2 + (i % 4);
+            int waveHeight = 2 + (i % 5);
+            // Add glow behind
+            graphics.FillRectangle(waveGlow, bounds.X + i - 1, bounds.Bottom - waveHeight - 1, 5, waveHeight + 2);
+            // Main wave
             graphics.FillRectangle(wave, bounds.X + i, bounds.Bottom - waveHeight, 4, waveHeight);
+        }
+        
+        // Add occasional larger wave peaks
+        for (int i = 12; i < bounds.Width; i += 24)
+        {
+            int waveHeight = 4 + (i % 3);
+            graphics.FillRectangle(waveGlow, bounds.X + i - 1, bounds.Bottom - waveHeight - 1, 6, waveHeight + 2);
+            graphics.FillRectangle(wave, bounds.X + i, bounds.Bottom - waveHeight, 5, waveHeight);
         }
     }
 
@@ -445,35 +685,44 @@ internal static class MenuRenderer
         using var path = Gfx.RoundedTopRect(panel, 18);
         graphics.SetClip(path);
 
-        using var seaweed = new SolidBrush(Color.FromArgb(50, 60, 140, 90));
-        using var seaweedDark = new SolidBrush(Color.FromArgb(50, 40, 100, 70));
+        using var seaweed = new SolidBrush(Color.FromArgb(70, 80, 160, 110));
+        using var seaweedLight = new SolidBrush(Color.FromArgb(60, 100, 180, 130));
+        using var seaweedDark = new SolidBrush(Color.FromArgb(60, 50, 120, 90));
 
         for (int i = 0; i < 3; i++)
         {
-            float sway = MathF.Sin(time * 0.5f + i * 1.5f) * 3f;
+            float sway = MathF.Sin(time * 0.6f + i * 1.6f) * 4f;
             int x = 15 + i * 8;
-            int height = 60 + i * 20;
+            int height = 65 + i * 22;
 
-            graphics.FillRectangle(seaweed, x, panel.Height - height, 4, height);
-            graphics.FillRectangle(seaweed, x + 4, panel.Height - height + 10, 3, height - 10);
-            graphics.FillRectangle(seaweed, x - 2, panel.Height - height + 20, 3, height - 20);
+            // Main seaweed strands with enhanced colors
+            graphics.FillRectangle(seaweedLight, x, panel.Height - height, 4, height);
+            graphics.FillRectangle(seaweed, x + 4, panel.Height - height + 12, 3, height - 12);
+            graphics.FillRectangle(seaweed, x - 2, panel.Height - height + 24, 3, height - 24);
 
-            graphics.FillRectangle(seaweedDark, x + 5, panel.Height - height + 30 + (int)sway, 6, 4);
-            graphics.FillRectangle(seaweedDark, x - 3, panel.Height - height + 50 - (int)sway, 5, 3);
+            // Enhanced detail strands with more animation
+            graphics.FillRectangle(seaweedDark, x + 5, panel.Height - height + 35 + (int)sway, 6, 4);
+            graphics.FillRectangle(seaweedDark, x - 3, panel.Height - height + 55 - (int)sway, 5, 3);
+            
+            // Add glow effect
+            graphics.FillRectangle(seaweedLight, x + 1, panel.Height - height + 2, 2, height - 4);
         }
 
         for (int i = 0; i < 3; i++)
         {
-            float sway = MathF.Sin(time * 0.5f + i * 1.5f + 2f) * 3f;
+            float sway = MathF.Sin(time * 0.6f + i * 1.6f + 2.2f) * 4f;
             int x = panel.Width - 25 - i * 8;
-            int height = 50 + i * 15;
+            int height = 55 + i * 18;
 
-            graphics.FillRectangle(seaweed, x, panel.Height - height, 4, height);
-            graphics.FillRectangle(seaweed, x - 4, panel.Height - height + 10, 3, height - 10);
-            graphics.FillRectangle(seaweed, x + 2, panel.Height - height + 20, 3, height - 20);
+            graphics.FillRectangle(seaweedLight, x, panel.Height - height, 4, height);
+            graphics.FillRectangle(seaweed, x - 4, panel.Height - height + 12, 3, height - 12);
+            graphics.FillRectangle(seaweed, x + 2, panel.Height - height + 24, 3, height - 24);
 
-            graphics.FillRectangle(seaweedDark, x - 5, panel.Height - height + 25 + (int)sway, 6, 4);
-            graphics.FillRectangle(seaweedDark, x + 3, panel.Height - height + 45 - (int)sway, 5, 3);
+            graphics.FillRectangle(seaweedDark, x - 5, panel.Height - height + 30 + (int)sway, 6, 4);
+            graphics.FillRectangle(seaweedDark, x + 3, panel.Height - height + 50 - (int)sway, 5, 3);
+            
+            // Add glow effect
+            graphics.FillRectangle(seaweedLight, x + 1, panel.Height - height + 2, 2, height - 4);
         }
 
         graphics.Restore(clip);
