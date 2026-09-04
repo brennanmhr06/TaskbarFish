@@ -265,7 +265,16 @@ internal static class TankRenderer
         foreach (var fish in aquarium.Fish)
         {
             float y = fish.Y + MathF.Sin(aquarium.Time * fish.BobSpeed + fish.Phase) * fish.Bob;
-            Sprites.Fish(graphics, water.Left + fish.X, water.Top + y, fish.FacingRight, fish.Body, fish.Fin);
+            Sprites.Fish(
+                graphics,
+                water.Left + fish.X,
+                water.Top + y,
+                fish.FacingRight,
+                fish.Body,
+                fish.Fin,
+                aquarium.Time,
+                fish.Phase,
+                fish.Speed);
         }
     }
 

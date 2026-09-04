@@ -4,59 +4,79 @@ namespace AquariumTaskbar.Rendering;
 
 internal static class Sprites
 {
-    public static void Fish(Graphics graphics, float x, float y, bool right, Color body, Color fin)
+    public static void Fish(Graphics graphics, float x, float y, bool right, Color body, Color fin, float time = 0f, float phase = 0f, float speed = 0.45f)
     {
+        var clip = AnimationConfig.FishSwim;
+        string[] map = clip.Frames[clip.FrameAt(time, phase, speed)];
+        int pixel = clip.PixelSize;
+        float width = clip.Width * pixel;
+        float height = clip.Height * pixel;
+        var palette = new FishPalette(body, fin);
+
         var state = graphics.Save();
-        graphics.TranslateTransform(x, y);
+        graphics.SmoothingMode = SmoothingMode.None;
+        graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+        graphics.PixelOffsetMode = PixelOffsetMode.None;
+        graphics.CompositingQuality = CompositingQuality.HighSpeed;
+        graphics.TranslateTransform(MathF.Round(x), MathF.Round(y));
         if (!right)
         {
             graphics.ScaleTransform(-1f, 1f);
         }
 
-        using var tailBrush = new SolidBrush(fin);
-        graphics.FillRectangle(tailBrush, -24, -4, 8, 8);
-        graphics.FillRectangle(tailBrush, -28, -6, 6, 4);
-        graphics.FillRectangle(tailBrush, -28, 2, 6, 4);
-        graphics.FillRectangle(tailBrush, -26, -8, 4, 2);
-        graphics.FillRectangle(tailBrush, -26, 6, 4, 2);
-
-        using var bodyBrush = new SolidBrush(body);
-        graphics.FillRectangle(bodyBrush, -16, -8, 32, 16);
-        graphics.FillRectangle(bodyBrush, -18, -6, 4, 12);
-        graphics.FillRectangle(bodyBrush, 14, -6, 4, 12);
-        graphics.FillRectangle(bodyBrush, -12, -10, 24, 4);
-        graphics.FillRectangle(bodyBrush, -12, 6, 24, 4);
-
-        graphics.FillRectangle(tailBrush, -4, -14, 8, 6);
-        graphics.FillRectangle(tailBrush, 0, -16, 4, 4);
-        graphics.FillRectangle(tailBrush, 4, -14, 4, 4);
-
-        graphics.FillRectangle(tailBrush, 8, 4, 6, 6);
-        graphics.FillRectangle(tailBrush, 10, 6, 4, 4);
-        graphics.FillRectangle(tailBrush, 6, 6, 4, 4);
-
-        graphics.FillRectangle(Brushes.White, 8, -6, 6, 6);
-        graphics.FillRectangle(Brushes.Black, 10, -4, 3, 3);
-        graphics.FillRectangle(Brushes.White, 11, -3, 1, 1);
-
-        using var mouthBrush = new SolidBrush(Color.FromArgb(180, 180, 120, 80));
-        graphics.FillRectangle(mouthBrush, 16, -1, 4, 2);
-
-        using var scaleBrush = new SolidBrush(Color.FromArgb(60, 255, 255, 255));
-        graphics.FillRectangle(scaleBrush, -10, -4, 4, 4);
-        graphics.FillRectangle(scaleBrush, -4, -2, 4, 4);
-        graphics.FillRectangle(scaleBrush, 2, -4, 4, 4);
-        graphics.FillRectangle(scaleBrush, 8, -2, 4, 4);
-        graphics.FillRectangle(scaleBrush, -8, 2, 4, 4);
-        graphics.FillRectangle(scaleBrush, -2, 4, 4, 4);
-        graphics.FillRectangle(scaleBrush, 4, 2, 4, 4);
-
-        using var patchBrush = new SolidBrush(Color.FromArgb(50, 200, 150, 100));
-        graphics.FillRectangle(patchBrush, -6, -6, 4, 4);
-        graphics.FillRectangle(patchBrush, 6, 0, 4, 4);
-        graphics.FillRectangle(patchBrush, 0, 4, 4, 4);
-
+        graphics.TranslateTransform(-MathF.Floor(width / 2f), -MathF.Floor(height / 2f));
+        DrawPixelMap(graphics, map, pixel, palette, shadow: true);
+        DrawPixelMap(graphics, map, pixel, palette, shadow: false);
         graphics.Restore(state);
+    }
+
+    private static void DrawPixelMap(Graphics graphics, string[] map, int pixel, FishPalette palette, bool shadow)
+    {
+        int ox = shadow ? 1 : 0;
+        int oy = shadow ? 1 : 0;
+
+        using var shadowBrush = new SolidBrush(palette.Shadow);
+        using var outline = new SolidBrush(palette.Outline);
+        using var bodyDark = new SolidBrush(palette.BodyDark);
+        using var body = new SolidBrush(palette.Body);
+        using var belly = new SolidBrush(palette.Belly);
+        using var fin = new SolidBrush(palette.Fin);
+        using var finDark = new SolidBrush(palette.FinDark);
+        using var eyeWhite = new SolidBrush(palette.EyeWhite);
+        using var pupil = new SolidBrush(palette.Pupil);
+        using var shine = new SolidBrush(palette.Shine);
+        using var mouth = new SolidBrush(palette.Mouth);
+
+        for (int row = 0; row < map.Length; row++)
+        {
+            string cells = map[row];
+            for (int col = 0; col < cells.Length; col++)
+            {
+                Brush? brush = cells[col] switch
+                {
+                    '.' or ' ' => null,
+                    _ when shadow => shadowBrush,
+                    '#' => outline,
+                    'd' => bodyDark,
+                    'b' => body,
+                    'l' => belly,
+                    'f' => fin,
+                    'n' => finDark,
+                    'W' => eyeWhite,
+                    'E' => pupil,
+                    'H' => shine,
+                    'm' => mouth,
+                    _ => null
+                };
+
+                if (brush is null)
+                {
+                    continue;
+                }
+
+                graphics.FillRectangle(brush, col * pixel + ox, row * pixel + oy, pixel, pixel);
+            }
+        }
     }
 
     public static void Bubble(Graphics graphics, int x, int y, int size)
