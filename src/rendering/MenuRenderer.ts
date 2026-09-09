@@ -2,6 +2,7 @@ import { Metrics } from '../drawing/Metrics';
 import { Gfx } from '../drawing/Gfx';
 import { Palette } from '../drawing/Palette';
 import { drawFish, drawNavGlyph, drawLock } from './Sprites';
+import { FishSwim, FishIdle, frameAt } from './AnimationConfig';
 
 const FONT = '"Segoe UI", sans-serif';
 const CARD_X = 10;
@@ -232,10 +233,10 @@ function drawPlacedFish(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = Palette.accent;
   ctx.textBaseline = 'top';
   ctx.textAlign = 'right';
-  ctx.fillText('0 / 6', card.x + card.width - 12, card.y + 8);
+  ctx.fillText('3 / 6', card.x + card.width - 12, card.y + 8);
   ctx.textAlign = 'left';
 
-  drawSlotRow(ctx, card.y + 28);
+  drawSlotRow(ctx, card.y + 28, true);
 }
 
 function drawPlacedDecorations(ctx: CanvasRenderingContext2D): void {
@@ -250,10 +251,10 @@ function drawPlacedDecorations(ctx: CanvasRenderingContext2D): void {
   ctx.fillText('0 / 6', card.x + card.width - 12, card.y + 8);
   ctx.textAlign = 'left';
 
-  drawSlotRow(ctx, card.y + 28);
+  drawSlotRow(ctx, card.y + 28, false);
 }
 
-function drawSlotRow(ctx: CanvasRenderingContext2D, y: number): void {
+function drawSlotRow(ctx: CanvasRenderingContext2D, y: number, showFish: boolean): void {
   const slotSize = 36;
   const gap = 8;
   const count = 6;
@@ -263,13 +264,23 @@ function drawSlotRow(ctx: CanvasRenderingContext2D, y: number): void {
   for (let i = 0; i < count; i++) {
     const slot = { x: startX + i * (slotSize + gap), y, width: slotSize, height: slotSize };
     Gfx.insetWell(ctx, slot, 8);
-    const lockRect = {
-      x: slot.x + slot.width / 2 - 7,
-      y: slot.y + slot.height / 2 - 7,
-      width: 14,
-      height: 14,
-    };
-    drawLock(ctx, lockRect);
+
+    if (showFish && i === 0) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(slot.x, slot.y, slot.width, slot.height);
+      ctx.clip();
+      drawFish(ctx, slot.x + slot.width / 2, slot.y + slot.height / 2, true, 'rgba(255, 168, 48, 1)', 'rgba(232, 96, 40, 1)', 0, 0, 0.35, 0.8);
+      ctx.restore();
+    } else {
+      const lockRect = {
+        x: slot.x + slot.width / 2 - 7,
+        y: slot.y + slot.height / 2 - 7,
+        width: 14,
+        height: 14,
+      };
+      drawLock(ctx, lockRect);
+    }
   }
 }
 

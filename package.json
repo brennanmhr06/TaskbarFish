@@ -4,8 +4,8 @@
   "description": "Aquarium Taskbar - Desktop aquarium application",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc --project tsconfig.main.json && webpack --mode production && node copy-html.js",
-    "dev": "tsc --project tsconfig.main.json && webpack --mode development && node copy-html.js && electron .",
+    "build": "tsc --project tsconfig.main.json && webpack --mode production",
+    "dev": "tsc --project tsconfig.main.json && webpack --mode development && electron .",
     "start": "electron ."
   },
   "devDependencies": {

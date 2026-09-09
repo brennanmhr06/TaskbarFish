@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 module.exports = {
   entry: './src/renderer/index.tsx',
@@ -24,4 +25,13 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    {
+      apply: (compiler) => {
+        compiler.hooks.afterEmit.tap('CopyHtml', () => {
+          fs.copyFileSync('src/renderer.html', 'dist/renderer.html');
+        });
+      },
+    },
+  ],
 };

@@ -29,9 +29,8 @@ export function resetAquarium(aquarium: Aquarium): void {
 
   aquarium.fish = [
     createFish(70, 42, 16, true, 'rgba(255, 168, 48, 1)', 'rgba(232, 96, 40, 1)', 2.2, 0.9, 0.2),
-    createFish(190, 58, 11, false, 'rgba(255, 214, 96, 1)', 'rgba(230, 140, 40, 1)', 1.8, 0.7, 1.1),
-    createFish(120, 32, 13, true, 'rgba(250, 248, 236, 1)', 'rgba(255, 170, 80, 1)', 2.0, 0.8, 2.4),
-    createFish(150, 50, 12, true, 'rgba(255, 128, 150, 1)', 'rgba(220, 70, 100, 1)', 1.6, 0.75, 3.7),
+    createFish(190, 58, 11, false, 'rgba(255, 168, 48, 1)', 'rgba(232, 96, 40, 1)', 1.8, 0.7, 1.1),
+    createFish(120, 32, 13, true, 'rgba(255, 168, 48, 1)', 'rgba(232, 96, 40, 1)', 2.0, 0.8, 2.4),
   ];
 }
 
