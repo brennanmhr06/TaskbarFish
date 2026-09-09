@@ -1,0 +1,27 @@
+{
+  "name": "aquarium-taskbar",
+  "version": "1.0.0",
+  "description": "Aquarium Taskbar - Desktop aquarium application",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc --project tsconfig.main.json && webpack --mode production && node copy-html.js",
+    "dev": "tsc --project tsconfig.main.json && webpack --mode development && node copy-html.js && electron .",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "electron": "^28.3.3",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.3.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongodb": "^6.21.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
