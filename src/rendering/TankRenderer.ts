@@ -3,7 +3,7 @@ import { Metrics } from '../drawing/Metrics';
 import { Gfx } from '../drawing/Gfx';
 import { Palette } from '../drawing/Palette';
 import { drawFish } from './Sprites';
-import { Bubble } from '../entities/Bubble';
+import { Algae } from '../entities/Bubble';
 
 export function drawTankRenderer(ctx: CanvasRenderingContext2D, top: number, aquarium: Aquarium): void {
   ctx.imageSmoothingEnabled = false;
@@ -76,7 +76,7 @@ function drawFrontScene(ctx: CanvasRenderingContext2D, water: { x: number; y: nu
   drawPlants(ctx, water, aquarium.time);
   drawSand(ctx, water);
   drawFishSchool(ctx, water, aquarium);
-  drawBubbles(ctx, water, aquarium.bubbles);
+  drawAlgae(ctx, water, aquarium.algae, aquarium.time);
   drawSurface(ctx, water, aquarium.time);
   drawGlassGlare(ctx, water);
 
@@ -316,41 +316,52 @@ function drawFishSchool(ctx: CanvasRenderingContext2D, water: { x: number; y: nu
   }
 }
 
-function drawBubbles(ctx: CanvasRenderingContext2D, water: { x: number; y: number; width: number; height: number }, bubbles: Bubble[]): void {
-  for (const bubble of bubbles) {
-    const x = water.x + bubble.x;
-    const y = water.y + bubble.y;
-    const size = bubble.size;
+function drawAlgae(ctx: CanvasRenderingContext2D, water: { x: number; y: number; width: number; height: number }, algae: Algae[], time: number): void {
+  for (const alg of algae) {
+    const x = water.x + alg.x;
+    const y = water.y + alg.y;
+    const size = alg.size;
 
-    const gradient = ctx.createLinearGradient(x, y, x + size, y + size);
-    gradient.addColorStop(0, 'rgba(130, 180, 220, 0.39)');
-    gradient.addColorStop(1, 'rgba(30, 80, 130, 0.12)');
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.ellipse(x + size / 2, y + size / 2, size / 2, size / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = 'rgba(90, 160, 200, 0.63)';
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-
-    const highlightSize = Math.max(2, size / 3);
-    ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-    ctx.fillRect(x + size / 4, y + size / 6, highlightSize, Math.max(2, size / 4));
-
-    if (size > 3) {
-      ctx.fillRect(x + size / 2, y + size / 3, 1, 1);
-
-      ctx.fillStyle = 'rgba(180, 200, 230, 0.71)';
-      ctx.fillRect(x + size / 3, y + size / 2, 1, 1);
+    // Draw algae as small leafy pieces
+    const sway = Math.sin(time * 1.5 + alg.x * 0.1) * 2;
+    
+    // Main stem color
+    const stemColor = 'rgba(60, 140, 60, 0.7)';
+    const leafColor = 'rgba(80, 180, 80, 0.6)';
+    const leafHighlight = 'rgba(100, 200, 100, 0.5)';
+    
+    // Draw central stem
+    ctx.fillStyle = stemColor;
+    ctx.fillRect(x + size/2 - 1, y, 2, size);
+    
+    // Draw leaves extending from stem
+    const leafCount = Math.floor(size / 2);
+    for (let i = 0; i < leafCount; i++) {
+      const leafY = y + (i * size / leafCount);
+      const leafSway = sway * (i / leafCount);
+      const side = i % 2 === 0 ? 1 : -1;
+      
+      // Main leaf
+      ctx.fillStyle = leafColor;
+      ctx.fillRect(x + size/2 + leafSway * side, leafY, size/2 * side, 2);
+      
+      // Leaf highlight
+      ctx.fillStyle = leafHighlight;
+      ctx.fillRect(x + size/2 + leafSway * side + (side > 0 ? 0 : -1), leafY + 1, size/4 * side, 1);
     }
-
-    if (size > 5) {
-      ctx.fillStyle = 'rgba(40, 150, 200, 0.16)';
-      ctx.beginPath();
-      ctx.ellipse(x + size / 3, y + size / 3, size / 3, size / 3, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    
+    // Add small glow effect
+    const glowGradient = ctx.createRadialGradient(x + size/2, y + size/2, 0, x + size/2, y + size/2, size);
+    glowGradient.addColorStop(0, 'rgba(100, 200, 100, 0.3)');
+    glowGradient.addColorStop(1, 'rgba(100, 200, 100, 0)');
+    ctx.fillStyle = glowGradient;
+    ctx.fillRect(x - size/2, y - size/2, size * 2, size * 2);
+    
+    // Add XP indicator (smaller and subtler)
+    ctx.fillStyle = 'rgba(255, 255, 200, 0.7)';
+    ctx.font = '6px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`+${alg.xpValue}XP`, x + size/2, y - 2);
   }
 }
 

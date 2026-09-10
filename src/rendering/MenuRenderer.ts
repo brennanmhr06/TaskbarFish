@@ -18,7 +18,7 @@ function rectBottom(rect: { x: number; y: number; width: number; height: number 
   return rect.y + rect.height;
 }
 
-export function drawMenuRenderer(ctx: CanvasRenderingContext2D, time: number): void {
+export function drawMenuRenderer(ctx: CanvasRenderingContext2D, time: number, totalXP: number = 0): void {
   ctx.imageSmoothingEnabled = false;
   const panel = { x: 0, y: 0, width: Metrics.tankWidth, height: Metrics.menuHeight };
 
@@ -45,7 +45,7 @@ export function drawMenuRenderer(ctx: CanvasRenderingContext2D, time: number): v
   ctx.textBaseline = 'alphabetic';
 
   drawHeader(ctx);
-  drawLevel(ctx);
+  drawLevel(ctx, totalXP);
   drawBasicFish(ctx, time);
   drawSize(ctx);
   drawPlacedFish(ctx);
@@ -106,54 +106,114 @@ function drawHeader(ctx: CanvasRenderingContext2D): void {
   ctx.textBaseline = 'alphabetic';
 }
 
-function drawLevel(ctx: CanvasRenderingContext2D): void {
+function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
   const CARD_W = cardWidth();
-  const card = { x: CARD_X, y: 54, width: CARD_W, height: 62 };
+  const card = { x: CARD_X, y: 54, width: CARD_W, height: 68 };
   Gfx.glassCard(ctx, card, 2);
 
   Gfx.sectionLabel(ctx, 'AQUARIUM LEVEL', card.x + 12, card.y + 8);
 
-  ctx.font = `bold 20px ${FONT}`;
-  ctx.fillStyle = Palette.ink;
-  ctx.textBaseline = 'top';
-  ctx.fillText('0', card.x + 12, card.y + 24);
+  // Calculate level based on XP with increasing requirements
+  // Level 1: 0-99 XP (100 XP needed)
+  // Level 2: 100-299 XP (200 XP needed) 
+  // Level 3: 300-599 XP (300 XP needed)
+  // Level 4: 600-999 XP (400 XP needed)
+  // Formula: XP needed for level n = n * 100
+  let level = 1;
+  let currentLevelXP = totalXP;
+  let xpForNextLevel = 100;
+  
+  for (let l = 1; l <= 50; l++) {
+    const xpNeeded = l * 100;
+    if (totalXP >= xpNeeded) {
+      level = l + 1;
+      currentLevelXP = totalXP - xpNeeded;
+      xpForNextLevel = (l + 1) * 100;
+    } else {
+      break;
+    }
+  }
 
-  const levelButtonRect = Metrics.levelButtonRect();
-  const expBar = {
-    x: card.x + 40,
-    y: card.y + 32,
-    width: Math.max(80, levelButtonRect.x - (card.x + 40) - 58),
-    height: 10,
+  // Draw level badge
+  const levelBadge = {
+    x: card.x + 12,
+    y: card.y + 24,
+    width: 44,
+    height: 36,
   };
-  drawXpBar(ctx, expBar, 0);
+  
+  // Level badge background
+  const badgeGradient = ctx.createLinearGradient(levelBadge.x, levelBadge.y, levelBadge.x, levelBadge.y + levelBadge.height);
+  badgeGradient.addColorStop(0, 'rgba(100, 180, 255, 0.9)');
+  badgeGradient.addColorStop(1, 'rgba(60, 140, 220, 0.9)');
+  ctx.fillStyle = badgeGradient;
+  ctx.fillRect(levelBadge.x, levelBadge.y, levelBadge.width, levelBadge.height);
+  
+  // Badge border
+  ctx.strokeStyle = 'rgba(40, 100, 160, 1)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(levelBadge.x + 1, levelBadge.y + 1, levelBadge.width - 2, levelBadge.height - 2);
+  
+  // Level number
+  ctx.font = `bold 18px ${FONT}`;
+  ctx.fillStyle = '#ffffff';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  ctx.fillText(`L${level}`, levelBadge.x + levelBadge.width / 2, levelBadge.y + levelBadge.height / 2);
+  ctx.textAlign = 'left';
 
-  ctx.font = `11px ${FONT}`;
+  // XP bar
+  const expBar = {
+    x: card.x + 64,
+    y: card.y + 28,
+    width: card.width - 76,
+    height: 14,
+  };
+  drawXpBar(ctx, expBar, currentLevelXP / xpForNextLevel);
+
+  // XP text
+  ctx.font = `10px ${FONT}`;
   ctx.fillStyle = Palette.inkMuted;
   ctx.textBaseline = 'middle';
-  ctx.fillText('0 / 100', expBar.x + expBar.width + 8, expBar.y + expBar.height / 2);
-
-  Gfx.pixelBevel(ctx, levelButtonRect, 'rgba(110, 200, 255, 1)', 'rgba(47, 124, 190, 1)');
-  Gfx.centeredText(ctx, 'LVL UP', `bold 10px ${FONT}`, 'rgba(255, 255, 255, 1)', levelButtonRect);
+  ctx.fillText(`${currentLevelXP} / ${xpForNextLevel} XP`, expBar.x, expBar.y + expBar.height + 12);
+  
+  // Level progress percentage
+  const progressPercent = Math.floor((currentLevelXP / xpForNextLevel) * 100);
+  ctx.textAlign = 'right';
+  ctx.fillText(`${progressPercent}%`, card.x + card.width - 12, expBar.y + expBar.height + 12);
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 }
 
 function drawXpBar(ctx: CanvasRenderingContext2D, track: { x: number; y: number; width: number; height: number }, progress: number): void {
-  ctx.fillStyle = '#082038';
+  // Background track
+  ctx.fillStyle = '#0a1a2a';
   ctx.fillRect(track.x, track.y, track.width, track.height);
-  ctx.strokeStyle = Palette.pixelNavy;
+  
+  // Track border
+  ctx.strokeStyle = 'rgba(30, 80, 120, 0.8)';
   ctx.lineWidth = 2;
   ctx.strokeRect(track.x + 1, track.y + 1, track.width - 2, track.height - 2);
 
+  // XP fill with gradient
   const fillWidth = Math.max(0, Math.floor((track.width - 4) * progress));
-  ctx.fillStyle = '#6ec8ff';
-  ctx.fillRect(track.x + 2, track.y + 2, fillWidth, track.height - 4);
-  ctx.fillStyle = '#2f7cbe';
-  ctx.fillRect(track.x + 2, track.y + Math.floor(track.height / 2), fillWidth, Math.ceil(track.height / 2) - 2);
+  if (fillWidth > 0) {
+    const gradient = ctx.createLinearGradient(track.x + 2, track.y, track.x + 2 + fillWidth, track.y);
+    gradient.addColorStop(0, '#4ade80');
+    gradient.addColorStop(0.5, '#22c55e');
+    gradient.addColorStop(1, '#16a34a');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(track.x + 2, track.y + 2, fillWidth, track.height - 4);
+    
+    // Add shine effect
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(track.x + 2, track.y + 2, fillWidth, Math.floor(track.height / 2) - 2);
+  }
 }
 
 function drawBasicFish(ctx: CanvasRenderingContext2D, time: number): void {
   const CARD_W = cardWidth();
-  const card = { x: CARD_X, y: 122, width: CARD_W, height: 54 };
+  const card = { x: CARD_X, y: 128, width: CARD_W, height: 54 };
   Gfx.glassCard(ctx, card, 2);
 
   const iconWell = { x: card.x + 8, y: card.y + 8, width: 38, height: 38 };
@@ -210,7 +270,7 @@ function sizeChipLabel(width: number, height: number): string {
 
 function drawSize(ctx: CanvasRenderingContext2D): void {
   const CARD_W = cardWidth();
-  const card = { x: CARD_X, y: 182, width: CARD_W, height: 52 };
+  const card = { x: CARD_X, y: 188, width: CARD_W, height: 52 };
   Gfx.glassCard(ctx, card, 2);
   Gfx.sectionLabel(ctx, 'AQUARIUM SIZE', card.x + 12, card.y + 8);
 
@@ -245,7 +305,7 @@ function drawSize(ctx: CanvasRenderingContext2D): void {
 
 function drawPlacedFish(ctx: CanvasRenderingContext2D): void {
   const CARD_W = cardWidth();
-  const card = { x: CARD_X, y: 240, width: CARD_W, height: 78 };
+  const card = { x: CARD_X, y: 246, width: CARD_W, height: 78 };
   Gfx.glassCard(ctx, card, 2);
   Gfx.sectionLabel(ctx, 'PLACED FISH', card.x + 12, card.y + 8);
 
@@ -261,7 +321,7 @@ function drawPlacedFish(ctx: CanvasRenderingContext2D): void {
 
 function drawPlacedDecorations(ctx: CanvasRenderingContext2D): void {
   const CARD_W = cardWidth();
-  const card = { x: CARD_X, y: 324, width: CARD_W, height: 78 };
+  const card = { x: CARD_X, y: 330, width: CARD_W, height: 78 };
   Gfx.glassCard(ctx, card, 2);
   Gfx.sectionLabel(ctx, 'PLACED DECORATIONS', card.x + 12, card.y + 8);
 
@@ -308,7 +368,7 @@ function drawSlotRow(ctx: CanvasRenderingContext2D, y: number, showFish: boolean
 
 function drawDock(ctx: CanvasRenderingContext2D): void {
   const CARD_W = cardWidth();
-  const dock = { x: CARD_X, y: 410, width: CARD_W, height: 42 };
+  const dock = { x: CARD_X, y: 416, width: CARD_W, height: 42 };
   Gfx.glassCard(ctx, dock, 2);
 
   const iconSize = 30;

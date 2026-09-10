@@ -4,6 +4,7 @@ import { drawTankRenderer } from '../rendering/TankRenderer';
 import { drawMenuRenderer, drawToggleButton } from '../rendering/MenuRenderer';
 import { Metrics } from '../drawing/Metrics';
 import { log } from './log';
+import { createFish } from '../entities/Fish';
 
 type ResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
@@ -104,6 +105,7 @@ function saveAquariumState(aquarium: Aquarium): void {
     fish: aquarium.fish,
     tankWidth: Metrics.tankWidth,
     tankHeight: Metrics.tankHeight,
+    totalXP: aquarium.totalXP,
   });
 }
 
@@ -145,9 +147,9 @@ const GameWindow: React.FC = () => {
   useEffect(() => {
     const aquarium = aquariumRef.current;
     log.success(
-      `Aquarium initialized with ${aquarium?.fish.length ?? 0} fish and ${aquarium?.bubbles.length ?? 0} bubbles`
+      `Aquarium initialized with ${aquarium?.fish.length ?? 0} fish and ${aquarium?.algae.length ?? 0} algae`
     );
-    log.success('Game loop started');
+    log.success('Game loop started - Fish will chase and eat algae to gain XP!');
 
     let cancelled = false;
     window.electron
@@ -157,8 +159,46 @@ const GameWindow: React.FC = () => {
           return;
         }
         if (state?.fish?.length) {
-          aquariumRef.current.fish = state.fish;
+          // Merge saved fish data with new fish properties
+          const currentTime = Date.now();
+          aquariumRef.current.fish = state.fish.map((savedFish) => {
+            const fish = createFish(
+              savedFish.x, 
+              savedFish.y, 
+              savedFish.speed, 
+              savedFish.facingRight,
+              savedFish.body, 
+              savedFish.fin, 
+              savedFish.bob, 
+              savedFish.bobSpeed, 
+              savedFish.phase,
+              savedFish.maxAlgae ?? 3,
+              savedFish.fullDuration ?? 180000
+            );
+            
+            // Apply saved hunger state
+            fish.hunger = savedFish.hunger ?? 0;
+            fish.lastEatenTime = savedFish.lastEatenTime ?? 0;
+            
+            // Reset hunger if fish was full and enough time has passed
+            if (fish.hunger >= fish.maxAlgae && 
+                fish.lastEatenTime && 
+                (currentTime - fish.lastEatenTime >= fish.fullDuration)) {
+              fish.hunger = 0;
+            }
+            
+            return fish;
+          });
           log.success(`Loaded ${state.fish.length} fish from MongoDB`);
+        }
+        
+        // Load total XP
+        if (state?.totalXP !== undefined) {
+          aquariumRef.current.totalXP = state.totalXP;
+          log.success(`Loaded total XP: ${state.totalXP}`);
+        } else {
+          // If no saved XP, keep the default
+          log.success('No saved XP found, using defaults');
         }
         if (state?.tankWidth && state?.tankHeight) {
           applyTankSize(state.tankWidth, state.tankHeight, false, true, aquariumRef.current);
@@ -219,7 +259,7 @@ const GameWindow: React.FC = () => {
     lastTimeRef.current = 0;
 
     const syncCanvasSize = () => {
-      const height = Metrics.tankFrameHeight + (menuOpenRef.current ? Metrics.menuHeight : 0);
+      const height = menuOpenRef.current ? Metrics.totalHeight : Metrics.tankFrameHeight;
       if (canvas.width !== Metrics.tankWidth || canvas.height !== height) {
         canvas.width = Metrics.tankWidth;
         canvas.height = height;
@@ -250,7 +290,7 @@ const GameWindow: React.FC = () => {
       drawTankRenderer(ctx, menuOffset, aquarium);
 
       if (menuOpenRef.current) {
-        drawMenuRenderer(ctx, aquarium.time);
+        drawMenuRenderer(ctx, aquarium.time, aquarium.totalXP);
       }
 
       drawToggleButton(ctx, menuOffset, menuOpenRef.current);

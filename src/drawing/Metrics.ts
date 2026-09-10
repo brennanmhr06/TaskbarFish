@@ -16,11 +16,15 @@ export class Metrics {
   static readonly bottomThickness = 8;
   static readonly buttonSize = 22;
   static readonly buttonMargin = 5;
-  static readonly menuHeight = 460;
+  static readonly menuHeight = 470;
   static readonly resizeHandle = 10;
 
   static get tankFrameHeight(): number {
     return this.lidDepth + this.tankHeight;
+  }
+  
+  static get totalHeight(): number {
+    return this.tankFrameHeight + this.menuHeight;
   }
 
   static setTankSize(width: number, height: number): void {
@@ -34,10 +38,6 @@ export class Metrics {
 
   static closeButtonRect(): { x: number; y: number; width: number; height: number } {
     return { x: this.tankWidth - 40, y: 17, width: 22, height: 22 };
-  }
-
-  static levelButtonRect(): { x: number; y: number; width: number; height: number } {
-    return { x: this.tankWidth - 78, y: 74, width: 56, height: 26 };
   }
 
   static menuBounds(): { x: number; y: number; width: number; height: number } {

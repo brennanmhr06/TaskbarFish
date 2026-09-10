@@ -11,6 +11,11 @@ export interface SavedFish {
   body: string;
   fin: string;
   animationPhase: number;
+  hunger?: number;
+  maxAlgae?: number;
+  lastEatenTime?: number;
+  fullDuration?: number;
+  targetAlgae?: number | null;
 }
 
 export interface AuthResponse {
@@ -29,8 +34,8 @@ export interface ElectronAPI {
     pinBottom: boolean;
   }) => void;
   log: (level: LogLevel, message: string) => void;
-  loadAquarium: () => Promise<{ fish: SavedFish[]; tankWidth?: number; tankHeight?: number } | null>;
-  saveAquarium: (state: { fish: SavedFish[]; tankWidth: number; tankHeight: number }) => void;
+  loadAquarium: () => Promise<{ fish: SavedFish[]; tankWidth?: number; tankHeight?: number; totalXP?: number } | null>;
+  saveAquarium: (state: { fish: SavedFish[]; tankWidth: number; tankHeight: number; totalXP: number }) => void;
   signup: (payload: {
     username: string;
     email: string;

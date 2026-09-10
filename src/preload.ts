@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.send('renderer-log', level, message);
   },
   loadAquarium: () => ipcRenderer.invoke('aquarium:load'),
-  saveAquarium: (state: { fish: unknown[]; tankWidth: number; tankHeight: number }) => {
+  saveAquarium: (state: { fish: unknown[]; tankWidth: number; tankHeight: number; totalXP: number }) => {
     ipcRenderer.send('aquarium:save', state);
   },
   signup: (payload: { username: string; email: string; password: string; confirm: string }) => {

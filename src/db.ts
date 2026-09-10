@@ -26,6 +26,7 @@ interface UserDoc {
   fish: SavedFish[];
   tankWidth?: number;
   tankHeight?: number;
+  totalXP?: number;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -41,12 +42,17 @@ export interface SavedFish {
   body: string;
   fin: string;
   animationPhase: number;
+  hunger?: number;
+  maxAlgae?: number;
+  lastEatenTime?: number;
+  fullDuration?: number;
 }
 
 export interface SavedAquarium {
   fish: SavedFish[];
   tankWidth?: number;
   tankHeight?: number;
+  totalXP?: number;
 }
 
 export interface PublicUser {
@@ -259,6 +265,7 @@ export async function loadAquariumState(userId: string): Promise<SavedAquarium |
     fish: doc.fish,
     tankWidth: doc.tankWidth,
     tankHeight: doc.tankHeight,
+    totalXP: (doc as any).totalXP || 0,
   };
 }
 
@@ -277,6 +284,7 @@ export async function saveAquariumState(userId: string, state: SavedAquarium): P
         fish: state.fish,
         tankWidth: state.tankWidth,
         tankHeight: state.tankHeight,
+        totalXP: state.totalXP || 0,
         updatedAt: new Date(),
       },
     }
