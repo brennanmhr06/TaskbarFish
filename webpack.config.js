@@ -34,6 +34,16 @@ module.exports = {
         compiler.hooks.afterEmit.tap('CopyHtml', () => {
           fs.copyFileSync('src/renderer.html', 'dist/renderer.html');
           fs.copyFileSync('src/auth.html', 'dist/auth.html');
+          
+          // Copy sounds folder
+          const soundsSource = path.join(__dirname, 'src/sounds');
+          const soundsDest = path.join(__dirname, 'dist/sounds');
+          if (!fs.existsSync(soundsDest)) {
+            fs.mkdirSync(soundsDest, { recursive: true });
+          }
+          fs.readdirSync(soundsSource).forEach(file => {
+            fs.copyFileSync(path.join(soundsSource, file), path.join(soundsDest, file));
+          });
         });
       },
     },

@@ -179,10 +179,25 @@ const GameWindow: React.FC = () => {
 
     const interval = window.setInterval(save, 5000);
 
+    // Start background music
+    const backgroundMusic = document.getElementById('background-music') as HTMLAudioElement;
+    if (backgroundMusic) {
+      backgroundMusic.volume = 0.3; // Set volume to 30% for nice ambient level
+      backgroundMusic.play().catch((err) => {
+        log.warn(`Could not play background music: ${String(err)}`);
+      });
+    }
+
     return () => {
       cancelled = true;
       window.clearInterval(interval);
       save();
+      
+      // Stop background music when component unmounts
+      if (backgroundMusic) {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+      }
     };
   }, []);
 
@@ -347,7 +362,7 @@ const GameWindow: React.FC = () => {
       onPointerCancel={handlePointerUp}
       style={{
         display: 'block',
-        cursor,
+        cursor: cursor,
       }}
     />
   );
