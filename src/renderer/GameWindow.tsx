@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { createAquarium, resetAquarium, tickAquarium, Aquarium } from '../scene/Aquarium';
+import { createAquarium, resetAquarium, tickAquarium, containAquarium, Aquarium } from '../scene/Aquarium';
 import { drawTankRenderer } from '../rendering/TankRenderer';
 import { drawMenuRenderer, drawToggleButton } from '../rendering/MenuRenderer';
 import { Metrics } from '../drawing/Metrics';
 import { log } from './log';
+
+type ResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
 function hitRect(
   x: number,
@@ -29,6 +31,95 @@ function canvasPoint(canvas: HTMLCanvasElement, clientX: number, clientY: number
   };
 }
 
+function resizeCursor(edge: ResizeEdge | null): string {
+  switch (edge) {
+    case 'n':
+    case 's':
+      return 'ns-resize';
+    case 'e':
+    case 'w':
+      return 'ew-resize';
+    case 'ne':
+    case 'sw':
+      return 'nesw-resize';
+    case 'nw':
+    case 'se':
+      return 'nwse-resize';
+    default:
+      return 'default';
+  }
+}
+
+function hitResizeEdge(x: number, y: number, menuOpen: boolean): ResizeEdge | null {
+  const tank = Metrics.tankBounds(menuOpen ? Metrics.menuHeight : 0);
+  const pad = Metrics.resizeHandle;
+  if (!hitRect(x, y, tank, 2)) {
+    return null;
+  }
+
+  const onLeft = x <= tank.x + pad;
+  const onRight = x >= tank.x + tank.width - pad;
+  const onTop = y <= tank.y + pad;
+  const onBottom = y >= tank.y + tank.height - pad;
+
+  if (menuOpen && onTop) {
+    if (onLeft) {
+      return 'w';
+    }
+    if (onRight) {
+      return 'e';
+    }
+    return null;
+  }
+
+  if (onTop && onLeft) {
+    return 'nw';
+  }
+  if (onTop && onRight) {
+    return 'ne';
+  }
+  if (onBottom && onLeft) {
+    return 'sw';
+  }
+  if (onBottom && onRight) {
+    return 'se';
+  }
+  if (onTop) {
+    return 'n';
+  }
+  if (onBottom) {
+    return 's';
+  }
+  if (onLeft) {
+    return 'w';
+  }
+  if (onRight) {
+    return 'e';
+  }
+  return null;
+}
+
+function saveAquariumState(aquarium: Aquarium): void {
+  window.electron?.saveAquarium({
+    fish: aquarium.fish,
+    tankWidth: Metrics.tankWidth,
+    tankHeight: Metrics.tankHeight,
+  });
+}
+
+function applyTankSize(width: number, height: number, pinRight: boolean, pinBottom: boolean, aquarium: Aquarium | null): void {
+  Metrics.setTankSize(width, height);
+  if (aquarium) {
+    containAquarium(aquarium);
+  }
+  window.electron?.resizeTank({
+    tankWidth: Metrics.tankWidth,
+    tankHeight: Metrics.tankHeight,
+    pinRight,
+    pinBottom,
+  });
+}
+
 const GameWindow: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const aquariumRef = useRef<Aquarium | null>(null);
@@ -38,10 +129,18 @@ const GameWindow: React.FC = () => {
     aquariumRef.current = aq;
   }
   const [topMenuOpen, setTopMenuOpen] = useState(false);
+  const [cursor, setCursor] = useState('default');
   const menuOpenRef = useRef(false);
   const animationRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const draggingRef = useRef(false);
+  const resizingRef = useRef<{
+    edge: ResizeEdge;
+    startScreenX: number;
+    startScreenY: number;
+    startWidth: number;
+    startHeight: number;
+  } | null>(null);
 
   useEffect(() => {
     const aquarium = aquariumRef.current;
@@ -54,11 +153,17 @@ const GameWindow: React.FC = () => {
     window.electron
       ?.loadAquarium()
       .then((state) => {
-        if (cancelled || !state?.fish?.length || !aquariumRef.current) {
+        if (cancelled || !aquariumRef.current) {
           return;
         }
-        aquariumRef.current.fish = state.fish;
-        log.success(`Loaded ${state.fish.length} fish from MongoDB`);
+        if (state?.fish?.length) {
+          aquariumRef.current.fish = state.fish;
+          log.success(`Loaded ${state.fish.length} fish from MongoDB`);
+        }
+        if (state?.tankWidth && state?.tankHeight) {
+          applyTankSize(state.tankWidth, state.tankHeight, false, true, aquariumRef.current);
+          log.success(`Loaded tank size ${Metrics.tankWidth}x${Metrics.tankHeight}`);
+        }
       })
       .catch((err) => {
         log.error(`Failed to load aquarium from MongoDB: ${String(err)}`);
@@ -69,7 +174,7 @@ const GameWindow: React.FC = () => {
       if (!current) {
         return;
       }
-      window.electron?.saveAquarium({ fish: current.fish });
+      saveAquariumState(current);
     };
 
     const interval = window.setInterval(save, 5000);
@@ -90,16 +195,6 @@ const GameWindow: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const height = Metrics.tankFrameHeight + (topMenuOpen ? Metrics.menuHeight : 0);
-    canvas.width = Metrics.tankWidth;
-    canvas.height = height;
-
-    const root = document.getElementById('root');
-    if (root) {
-      root.style.width = `${Metrics.tankWidth}px`;
-      root.style.height = `${height}px`;
-    }
-
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       log.error('Failed to get 2D canvas context');
@@ -108,9 +203,27 @@ const GameWindow: React.FC = () => {
 
     lastTimeRef.current = 0;
 
+    const syncCanvasSize = () => {
+      const height = Metrics.tankFrameHeight + (menuOpenRef.current ? Metrics.menuHeight : 0);
+      if (canvas.width !== Metrics.tankWidth || canvas.height !== height) {
+        canvas.width = Metrics.tankWidth;
+        canvas.height = height;
+        const root = document.getElementById('root');
+        if (root) {
+          root.style.width = `${Metrics.tankWidth}px`;
+          root.style.height = `${height}px`;
+        }
+      }
+      return height;
+    };
+
+    syncCanvasSize();
+
     const animate = (now: number) => {
       const aquarium = aquariumRef.current;
       if (!aquarium) return;
+
+      syncCanvasSize();
 
       const dt = lastTimeRef.current === 0 ? 0.016 : Math.min(0.05, (now - lastTimeRef.current) / 1000);
       lastTimeRef.current = now;
@@ -118,14 +231,14 @@ const GameWindow: React.FC = () => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const menuOffset = topMenuOpen ? Metrics.menuHeight : 0;
+      const menuOffset = menuOpenRef.current ? Metrics.menuHeight : 0;
       drawTankRenderer(ctx, menuOffset, aquarium);
 
-      if (topMenuOpen) {
+      if (menuOpenRef.current) {
         drawMenuRenderer(ctx, aquarium.time);
       }
 
-      drawToggleButton(ctx, menuOffset, topMenuOpen);
+      drawToggleButton(ctx, menuOffset, menuOpenRef.current);
 
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -148,13 +261,29 @@ const GameWindow: React.FC = () => {
 
     if (hitRect(x, y, buttonBounds, 4)) {
       draggingRef.current = false;
+      resizingRef.current = null;
       setTopMenuOpen((open) => !open);
       return;
     }
 
     if (menuOpen && hitRect(x, y, Metrics.closeButtonRect(), 4)) {
       draggingRef.current = false;
+      resizingRef.current = null;
       window.electron?.closeWindow();
+      return;
+    }
+
+    const edge = hitResizeEdge(x, y, menuOpen);
+    if (edge) {
+      draggingRef.current = false;
+      resizingRef.current = {
+        edge,
+        startScreenX: e.screenX,
+        startScreenY: e.screenY,
+        startWidth: Metrics.tankWidth,
+        startHeight: Metrics.tankHeight,
+      };
+      canvas.setPointerCapture(e.pointerId);
       return;
     }
 
@@ -164,14 +293,48 @@ const GameWindow: React.FC = () => {
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!draggingRef.current) return;
-    window.electron?.dragWindow({ screenX: e.screenX, screenY: e.screenY, start: false });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resize = resizingRef.current;
+    if (resize) {
+      const dx = e.screenX - resize.startScreenX;
+      const dy = e.screenY - resize.startScreenY;
+      const fromLeft = resize.edge.includes('w');
+      const fromRight = resize.edge.includes('e');
+      const fromTop = resize.edge.includes('n');
+      const fromBottom = resize.edge.includes('s');
+      const nextWidth = resize.startWidth + (fromRight ? dx : fromLeft ? -dx : 0);
+      const nextHeight = resize.startHeight + (fromBottom ? dy : fromTop ? -dy : 0);
+      applyTankSize(nextWidth, nextHeight, fromLeft, fromTop, aquariumRef.current);
+      setCursor(resizeCursor(resize.edge));
+      return;
+    }
+
+    if (draggingRef.current) {
+      window.electron?.dragWindow({ screenX: e.screenX, screenY: e.screenY, start: false });
+      return;
+    }
+
+    const { x, y } = canvasPoint(canvas, e.clientX, e.clientY);
+    const menuOpen = menuOpenRef.current;
+    const menuOffset = menuOpen ? Metrics.menuHeight : 0;
+    if (hitRect(x, y, Metrics.buttonBounds(menuOffset), 4)) {
+      setCursor('pointer');
+      return;
+    }
+    setCursor(resizeCursor(hitResizeEdge(x, y, menuOpen)));
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const wasResizing = Boolean(resizingRef.current);
     draggingRef.current = false;
+    resizingRef.current = null;
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    if (wasResizing && aquariumRef.current) {
+      saveAquariumState(aquariumRef.current);
     }
   };
 
@@ -184,6 +347,7 @@ const GameWindow: React.FC = () => {
       onPointerCancel={handlePointerUp}
       style={{
         display: 'block',
+        cursor,
       }}
     />
   );

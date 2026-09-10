@@ -14,6 +14,13 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false
   },
-  "include": ["src/main.ts", "src/preload.ts", "src/db.ts", "src/logger.ts"],
+  "include": [
+    "src/main.ts",
+    "src/preload.ts",
+    "src/db.ts",
+    "src/logger.ts",
+    "src/password.ts",
+    "src/session.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

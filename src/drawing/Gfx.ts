@@ -4,124 +4,60 @@ export class Gfx {
   static fillRound(
     ctx: CanvasRenderingContext2D,
     bounds: { x: number; y: number; width: number; height: number },
-    radius: number,
+    _radius: number,
     top: string,
     bottom: string
   ): void {
     if (bounds.width <= 0 || bounds.height <= 0) {
       return;
     }
-
-    const path = this.roundedRect(bounds, radius);
-    const gradient = ctx.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
-    gradient.addColorStop(0, this.lightenColor(top, 20));
-    gradient.addColorStop(0.4, top);
-    gradient.addColorStop(0.7, bottom);
-    gradient.addColorStop(1, this.darkenColor(bottom, 20));
-
-    ctx.fillStyle = gradient;
-    ctx.fill(path);
+    this.pixelBevel(ctx, bounds, top, bottom, false);
   }
 
   static glassCard(
     ctx: CanvasRenderingContext2D,
     bounds: { x: number; y: number; width: number; height: number },
-    radius: number
+    _radius: number
   ): void {
-    const shadowGlow = this.roundedRect(
-      { x: bounds.x + 2, y: bounds.y + 5, width: bounds.width, height: bounds.height },
-      radius
-    );
-    ctx.fillStyle = 'rgba(20, 45, 70, 0.2)';
-    ctx.fill(shadowGlow);
+    ctx.fillStyle = Palette.pixelShadow;
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, bounds.width, bounds.height);
 
-    const shadow = this.roundedRect(
-      { x: bounds.x, y: bounds.y + 3, width: bounds.width, height: bounds.height },
-      radius
-    );
-    ctx.fillStyle = 'rgba(15, 35, 55, 0.16)';
-    ctx.fill(shadow);
-
-    const path = this.roundedRect(bounds, radius);
     const gradient = ctx.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
-    gradient.addColorStop(0, 'rgba(70, 120, 160, 0.78)');
-    gradient.addColorStop(0.33, 'rgba(60, 110, 150, 0.71)');
-    gradient.addColorStop(0.66, 'rgba(50, 100, 140, 0.63)');
-    gradient.addColorStop(1, 'rgba(40, 90, 130, 0.55)');
+    gradient.addColorStop(0, 'rgba(42, 106, 160, 0.94)');
+    gradient.addColorStop(1, 'rgba(18, 54, 92, 0.94)');
     ctx.fillStyle = gradient;
-    ctx.fill(path);
+    ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-    ctx.strokeStyle = 'rgba(120, 180, 240, 0.86)';
-    ctx.lineWidth = 1.8;
-    ctx.stroke(path);
+    ctx.strokeStyle = Palette.pixelNavy;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(bounds.x + 1.5, bounds.y + 1.5, bounds.width - 3, bounds.height - 3);
 
-    ctx.strokeStyle = 'rgba(150, 200, 255, 0.24)';
-    ctx.lineWidth = 1;
-    ctx.stroke(path);
+    ctx.fillStyle = 'rgba(200, 236, 255, 0.28)';
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, bounds.width - 6, 2);
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, 2, bounds.height - 6);
 
-    const innerPath = this.roundedRect(
-      { x: bounds.x + 2, y: bounds.y + 2, width: bounds.width - 4, height: bounds.height - 4 },
-      Math.max(2, radius - 2)
-    );
-    ctx.strokeStyle = 'rgba(100, 160, 200, 0.35)';
-    ctx.lineWidth = 1;
-    ctx.stroke(innerPath);
+    ctx.fillStyle = 'rgba(7, 24, 40, 0.35)';
+    ctx.fillRect(bounds.x + bounds.width - 5, bounds.y + 4, 2, bounds.height - 7);
+    ctx.fillRect(bounds.x + 4, bounds.y + bounds.height - 5, bounds.width - 8, 2);
 
-    ctx.save();
-    ctx.clip(path);
-    const shine = {
-      x: bounds.x + 5,
-      y: bounds.y + 1,
-      width: bounds.width - 10,
-      height: Math.max(10, bounds.height / 2.5),
-    };
-    const shineGradient = ctx.createLinearGradient(shine.x, shine.y, shine.x, shine.y + shine.height);
-    shineGradient.addColorStop(0, 'rgba(180, 230, 255, 0.22)');
-    shineGradient.addColorStop(1, 'rgba(100, 160, 200, 0.02)');
-    ctx.fillStyle = shineGradient;
-    ctx.fillRect(shine.x, shine.y, shine.width, shine.height);
-
-    ctx.fillStyle = 'rgba(200, 240, 255, 0.16)';
-    ctx.fillRect(bounds.x + 4, bounds.y + 1, bounds.width - 8, 3);
-
-    ctx.restore();
+    this.scanlines(ctx, bounds, 0.08);
   }
 
   static insetWell(
     ctx: CanvasRenderingContext2D,
     bounds: { x: number; y: number; width: number; height: number },
-    radius: number
+    _radius: number
   ): void {
-    const path = this.roundedRect(bounds, radius);
-    const gradient = ctx.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
-    gradient.addColorStop(0, 'rgba(25, 55, 85, 0.39)');
-    gradient.addColorStop(1, 'rgba(15, 40, 65, 0.51)');
-    ctx.fillStyle = gradient;
-    ctx.fill(path);
-
-    ctx.strokeStyle = 'rgba(110, 170, 230, 0.51)';
-    ctx.lineWidth = 1.5;
-    const highlightPath = this.roundedRect(
-      { x: bounds.x + 1, y: bounds.y + 1, width: bounds.width - 2, height: bounds.height - 2 },
-      Math.max(2, radius - 1)
-    );
-    ctx.stroke(highlightPath);
-
-    ctx.strokeStyle = 'rgba(90, 150, 190, 0.31)';
-    ctx.lineWidth = 0.8;
-    const innerPath = this.roundedRect(
-      { x: bounds.x + 2, y: bounds.y + 2, width: bounds.width - 4, height: bounds.height - 4 },
-      Math.max(2, radius - 2)
-    );
-    ctx.stroke(innerPath);
-
-    ctx.strokeStyle = 'rgba(30, 60, 90, 0.16)';
-    ctx.lineWidth = 0.5;
-    const shadowPath = this.roundedRect(
-      { x: bounds.x + 3, y: bounds.y + 3, width: bounds.width - 6, height: bounds.height - 6 },
-      Math.max(2, radius - 3)
-    );
-    ctx.stroke(shadowPath);
+    ctx.fillStyle = '#082038';
+    ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+    ctx.strokeStyle = Palette.pixelNavy;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(bounds.x + 1.5, bounds.y + 1.5, bounds.width - 3, bounds.height - 3);
+    ctx.fillStyle = 'rgba(4, 16, 24, 0.55)';
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, bounds.width - 6, 2);
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, 2, bounds.height - 6);
+    ctx.fillStyle = 'rgba(74, 160, 208, 0.35)';
+    ctx.fillRect(bounds.x + 3, bounds.y + bounds.height - 5, bounds.width - 6, 2);
   }
 
   static glossyButton(
@@ -130,57 +66,70 @@ export class Gfx {
     top: string,
     bottom: string
   ): void {
-    const shadowGlow = this.roundedRect(
-      { x: bounds.x + 2, y: bounds.y + 5, width: bounds.width, height: bounds.height },
-      9
-    );
-    ctx.fillStyle = 'rgba(25, 50, 75, 0.24)';
-    ctx.fill(shadowGlow);
+    this.pixelBevel(ctx, bounds, top, bottom, false);
+  }
 
-    const shadow = this.roundedRect(
-      { x: bounds.x, y: bounds.y + 3, width: bounds.width, height: bounds.height },
-      9
-    );
-    ctx.fillStyle = 'rgba(18, 40, 60, 0.2)';
-    ctx.fill(shadow);
+  static pixelBevel(
+    ctx: CanvasRenderingContext2D,
+    bounds: { x: number; y: number; width: number; height: number },
+    top: string,
+    bottom: string,
+    selected = false
+  ): void {
+    ctx.fillStyle = Palette.pixelShadow;
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, bounds.width, bounds.height);
 
-    const path = this.roundedRect(bounds, 9);
     const gradient = ctx.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
-    gradient.addColorStop(0, this.lightenColor(top, 30));
-    gradient.addColorStop(0.3, top);
-    gradient.addColorStop(0.7, this.mixColors(top, bottom, 0.5));
+    gradient.addColorStop(0, this.lightenColor(top, 18));
     gradient.addColorStop(1, bottom);
     ctx.fillStyle = gradient;
-    ctx.fill(path);
+    ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-    const shineGradient = ctx.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
-    shineGradient.addColorStop(0, 'rgba(180, 230, 255, 0.63)');
-    shineGradient.addColorStop(1, 'rgba(100, 160, 200, 0.12)');
-    ctx.fillStyle = shineGradient;
-    ctx.fillRect(bounds.x + 4, bounds.y + 1, bounds.width - 8, bounds.height / 2);
+    ctx.strokeStyle = Palette.pixelNavy;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(bounds.x + 1.5, bounds.y + 1.5, bounds.width - 3, bounds.height - 3);
 
-    ctx.fillStyle = 'rgba(220, 250, 255, 0.39)';
-    ctx.fillRect(bounds.x + 5, bounds.y + 1, bounds.width - 10, 3);
+    ctx.fillStyle = selected ? 'rgba(244, 251, 255, 0.55)' : 'rgba(200, 236, 255, 0.4)';
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, bounds.width - 6, 2);
+    ctx.fillRect(bounds.x + 3, bounds.y + 3, 2, bounds.height - 6);
+  }
 
-    ctx.strokeStyle = 'rgba(140, 200, 255, 0.9)';
-    ctx.lineWidth = 1.6;
-    ctx.stroke(path);
+  static scanlines(
+    ctx: CanvasRenderingContext2D,
+    bounds: { x: number; y: number; width: number; height: number },
+    alpha = 0.1
+  ): void {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+    ctx.clip();
+    ctx.fillStyle = `rgba(8, 24, 40, ${alpha})`;
+    for (let y = Math.floor(bounds.y); y < bounds.y + bounds.height; y += 4) {
+      ctx.fillRect(bounds.x, y, bounds.width, 2);
+    }
+    ctx.restore();
+  }
 
-    ctx.strokeStyle = 'rgba(150, 210, 255, 0.31)';
-    ctx.lineWidth = 1;
-    ctx.stroke(path);
-
-    const innerEdge = this.roundedRect(
-      { x: bounds.x + 2, y: bounds.y + 2, width: bounds.width - 4, height: bounds.height - 4 },
-      7
-    );
-    ctx.strokeStyle = 'rgba(110, 170, 210, 0.39)';
-    ctx.lineWidth = 0.9;
-    ctx.stroke(innerEdge);
+  static dither(
+    ctx: CanvasRenderingContext2D,
+    bounds: { x: number; y: number; width: number; height: number },
+    color = 'rgba(8, 24, 40, 0.12)'
+  ): void {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+    ctx.clip();
+    ctx.fillStyle = color;
+    for (let y = Math.floor(bounds.y); y < bounds.y + bounds.height; y += 2) {
+      for (let x = Math.floor(bounds.x) + (y % 4 === 0 ? 0 : 2); x < bounds.x + bounds.width; x += 4) {
+        ctx.fillRect(x, y, 2, 2);
+      }
+    }
+    ctx.restore();
   }
 
   static sectionLabel(ctx: CanvasRenderingContext2D, text: string, x: number, y: number): void {
-    ctx.font = 'bold 9px "Segoe UI", sans-serif';
+    ctx.font = `bold 9px ${Palette.pixelFont}`;
     ctx.fillStyle = Palette.inkMuted;
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
@@ -249,19 +198,12 @@ export class Gfx {
     return `rgba(${Math.min(255, rgba.r + amount)}, ${Math.min(255, rgba.g + amount)}, ${Math.min(255, rgba.b + amount)}, ${rgba.a})`;
   }
 
-  private static darkenColor(color: string, amount: number): string {
-    const rgba = this.parseRgba(color);
-    return `rgba(${Math.max(0, rgba.r - amount)}, ${Math.max(0, rgba.g - amount)}, ${Math.max(0, rgba.b - amount)}, ${rgba.a})`;
-  }
-
-  private static mixColors(color1: string, color2: string, t: number): string {
-    const rgba1 = this.parseRgba(color1);
-    const rgba2 = this.parseRgba(color2);
-    const clampedT = Math.max(0, Math.min(1, t));
-    return `rgba(${rgba1.r + (rgba2.r - rgba1.r) * clampedT}, ${rgba1.g + (rgba2.g - rgba1.g) * clampedT}, ${rgba1.b + (rgba2.b - rgba1.b) * clampedT}, ${rgba1.a})`;
-  }
-
   private static parseRgba(color: string): { r: number; g: number; b: number; a: number } {
+    const hex = color.match(/^#([0-9a-f]{6})$/i);
+    if (hex) {
+      const n = parseInt(hex[1], 16);
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: 1 };
+    }
     const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
     if (!match) {
       return { r: 0, g: 0, b: 0, a: 1 };

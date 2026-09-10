@@ -19,6 +19,7 @@
     "src/entities/**/*",
     "src/rendering/**/*",
     "src/renderer/**/*",
+    "src/auth/**/*",
     "src/scene/**/*",
     "src/electron-api.d.ts"
   ],

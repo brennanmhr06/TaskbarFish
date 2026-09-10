@@ -34,6 +34,22 @@ export function resetAquarium(aquarium: Aquarium): void {
   ];
 }
 
+export function containAquarium(aquarium: Aquarium): void {
+  const waterWidth = Metrics.tankWidth - 2 * Metrics.glassThickness;
+  const waterHeight = Metrics.tankHeight - Metrics.bottomThickness;
+  const margin = 28;
+
+  for (const fish of aquarium.fish) {
+    fish.x = Math.min(Math.max(fish.x, margin), Math.max(margin, waterWidth - margin));
+    fish.y = Math.min(Math.max(fish.y, 16), Math.max(16, waterHeight - 24));
+  }
+
+  for (const bubble of aquarium.bubbles) {
+    bubble.x = Math.min(Math.max(bubble.x, 8), Math.max(8, waterWidth - bubble.size - 8));
+    bubble.y = Math.min(Math.max(bubble.y, 6), Math.max(6, waterHeight - 16));
+  }
+}
+
 export function tickAquarium(aquarium: Aquarium, dt: number): void {
   aquarium.time += dt;
 

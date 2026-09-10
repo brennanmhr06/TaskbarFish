@@ -2,11 +2,13 @@ import { Metrics } from '../drawing/Metrics';
 import { Gfx } from '../drawing/Gfx';
 import { Palette } from '../drawing/Palette';
 import { drawFish, drawNavGlyph, drawLock } from './Sprites';
-import { FishSwim, FishIdle, frameAt } from './AnimationConfig';
 
-const FONT = '"Segoe UI", sans-serif';
+const FONT = Palette.pixelFont;
 const CARD_X = 10;
-const CARD_W = Metrics.tankWidth - 20;
+
+function cardWidth(): number {
+  return Metrics.cardWidth();
+}
 
 function rectRight(rect: { x: number; y: number; width: number; height: number }): number {
   return rect.x + rect.width;
@@ -17,18 +19,26 @@ function rectBottom(rect: { x: number; y: number; width: number; height: number 
 }
 
 export function drawMenuRenderer(ctx: CanvasRenderingContext2D, time: number): void {
+  ctx.imageSmoothingEnabled = false;
   const panel = { x: 0, y: 0, width: Metrics.tankWidth, height: Metrics.menuHeight };
 
-  const path = Gfx.roundedTopRect(panel, 16);
-  const gradient = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
-  gradient.addColorStop(0, 'rgba(56, 118, 168, 0.97)');
-  gradient.addColorStop(1, 'rgba(28, 78, 122, 0.97)');
-  ctx.fillStyle = gradient;
-  ctx.fill(path);
+  ctx.fillStyle = Palette.pixelShadow;
+  ctx.fillRect(panel.x + 4, panel.y + 4, panel.width, panel.height);
 
-  ctx.strokeStyle = 'rgba(160, 210, 255, 0.85)';
-  ctx.lineWidth = 2;
-  ctx.stroke(path);
+  const gradient = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.height);
+  gradient.addColorStop(0, '#2a6aa0');
+  gradient.addColorStop(1, '#12365c');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
+
+  Gfx.scanlines(ctx, panel, 0.1);
+
+  ctx.strokeStyle = Palette.pixelCyan;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(panel.x + 2, panel.y + 2, panel.width - 4, panel.height - 4);
+  ctx.strokeStyle = Palette.pixelNavy;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(panel.x + 5, panel.y + 5, panel.width - 10, panel.height - 10);
 
   ctx.save();
   ctx.textAlign = 'left';
@@ -47,80 +57,59 @@ export function drawMenuRenderer(ctx: CanvasRenderingContext2D, time: number): v
 
 export function drawToggleButton(ctx: CanvasRenderingContext2D, menuOffset: number, menuOpen: boolean): void {
   const bounds = Metrics.buttonBounds(menuOffset);
-  const path = Gfx.roundedRect(bounds, 7);
-  const gradient = ctx.createLinearGradient(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
-  gradient.addColorStop(0, 'rgba(150, 215, 255, 1)');
-  gradient.addColorStop(1, 'rgba(70, 145, 205, 1)');
-  ctx.fillStyle = gradient;
-  ctx.fill(path);
-  ctx.strokeStyle = 'rgba(210, 240, 255, 0.9)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke(path);
+  Gfx.pixelBevel(ctx, bounds, 'rgba(110, 200, 255, 1)', 'rgba(47, 124, 190, 1)', false);
 
-  const cx = bounds.x + bounds.width / 2;
-  const cy = bounds.y + bounds.height / 2 + 1;
-  const arrow = menuOpen
-    ? [
-        { x: cx, y: cy - 5 },
-        { x: cx + 6, y: cy + 4 },
-        { x: cx - 6, y: cy + 4 },
-      ]
-    : [
-        { x: cx - 6, y: cy - 4 },
-        { x: cx + 6, y: cy - 4 },
-        { x: cx, y: cy + 5 },
-      ];
-
-  ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-  ctx.beginPath();
-  ctx.moveTo(arrow[0].x, arrow[0].y);
-  ctx.lineTo(arrow[1].x, arrow[1].y);
-  ctx.lineTo(arrow[2].x, arrow[2].y);
-  ctx.closePath();
-  ctx.fill();
+  const cx = Math.round(bounds.x + bounds.width / 2);
+  const cy = Math.round(bounds.y + bounds.height / 2);
+  ctx.fillStyle = '#f4fbff';
+  if (menuOpen) {
+    ctx.fillRect(cx - 5, cy + 2, 10, 3);
+    ctx.fillRect(cx - 3, cy - 1, 6, 3);
+    ctx.fillRect(cx - 1, cy - 4, 2, 3);
+  } else {
+    ctx.fillRect(cx - 5, cy - 4, 10, 3);
+    ctx.fillRect(cx - 3, cy - 1, 6, 3);
+    ctx.fillRect(cx - 1, cy + 2, 2, 3);
+  }
 }
 
 function drawHeader(ctx: CanvasRenderingContext2D): void {
+  const CARD_W = cardWidth();
   const headerRect = { x: CARD_X, y: 8, width: CARD_W, height: 40 };
-  Gfx.glassCard(ctx, headerRect, 12);
+  Gfx.glassCard(ctx, headerRect, 2);
 
-  ctx.font = `bold 15px ${FONT}`;
+  ctx.font = `bold 12px ${FONT}`;
   ctx.fillStyle = Palette.ink;
   ctx.textBaseline = 'middle';
-  ctx.fillText('Aquarium TaskBar', headerRect.x + 12, headerRect.y + headerRect.height / 2);
+  ctx.fillText('AQUARIUM TASKBAR', headerRect.x + 12, headerRect.y + headerRect.height / 2);
 
   const closeRect = Metrics.closeButtonRect();
-  ctx.fillStyle = 'rgba(90, 150, 200, 0.95)';
-  ctx.beginPath();
-  ctx.ellipse(
-    closeRect.x + closeRect.width / 2,
-    closeRect.y + closeRect.height / 2,
-    closeRect.width / 2,
-    closeRect.height / 2,
-    0,
-    0,
-    Math.PI * 2
-  );
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(200, 230, 255, 0.9)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  ctx.fillStyle = Palette.pixelShadow;
+  ctx.fillRect(closeRect.x + 2, closeRect.y + 2, closeRect.width, closeRect.height);
+  ctx.fillStyle = Palette.pixelCoral;
+  ctx.fillRect(closeRect.x, closeRect.y, closeRect.width, closeRect.height);
+  ctx.fillStyle = '#f09880';
+  ctx.fillRect(closeRect.x + 2, closeRect.y + 2, closeRect.width - 4, 2);
+  ctx.strokeStyle = Palette.pixelNavy;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(closeRect.x + 1.5, closeRect.y + 1.5, closeRect.width - 3, closeRect.height - 3);
 
-  ctx.strokeStyle = 'rgba(245, 252, 255, 1)';
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#fff8f0';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'square';
   ctx.beginPath();
-  ctx.moveTo(closeRect.x + 7, closeRect.y + 7);
-  ctx.lineTo(rectRight(closeRect) - 7, rectBottom(closeRect) - 7);
-  ctx.moveTo(rectRight(closeRect) - 7, closeRect.y + 7);
-  ctx.lineTo(closeRect.x + 7, rectBottom(closeRect) - 7);
+  ctx.moveTo(closeRect.x + 6, closeRect.y + 6);
+  ctx.lineTo(rectRight(closeRect) - 6, rectBottom(closeRect) - 6);
+  ctx.moveTo(rectRight(closeRect) - 6, closeRect.y + 6);
+  ctx.lineTo(closeRect.x + 6, rectBottom(closeRect) - 6);
   ctx.stroke();
   ctx.textBaseline = 'alphabetic';
 }
 
 function drawLevel(ctx: CanvasRenderingContext2D): void {
+  const CARD_W = cardWidth();
   const card = { x: CARD_X, y: 54, width: CARD_W, height: 62 };
-  Gfx.glassCard(ctx, card, 12);
+  Gfx.glassCard(ctx, card, 2);
 
   Gfx.sectionLabel(ctx, 'AQUARIUM LEVEL', card.x + 12, card.y + 8);
 
@@ -129,7 +118,13 @@ function drawLevel(ctx: CanvasRenderingContext2D): void {
   ctx.textBaseline = 'top';
   ctx.fillText('0', card.x + 12, card.y + 24);
 
-  const expBar = { x: card.x + 40, y: card.y + 32, width: 142, height: 10 };
+  const levelButtonRect = Metrics.levelButtonRect();
+  const expBar = {
+    x: card.x + 40,
+    y: card.y + 32,
+    width: Math.max(80, levelButtonRect.x - (card.x + 40) - 58),
+    height: 10,
+  };
   drawXpBar(ctx, expBar, 0);
 
   ctx.font = `11px ${FONT}`;
@@ -137,42 +132,29 @@ function drawLevel(ctx: CanvasRenderingContext2D): void {
   ctx.textBaseline = 'middle';
   ctx.fillText('0 / 100', expBar.x + expBar.width + 8, expBar.y + expBar.height / 2);
 
-  const levelButtonRect = Metrics.levelButtonRect();
-  const gradient = ctx.createLinearGradient(levelButtonRect.x, levelButtonRect.y, levelButtonRect.x, levelButtonRect.y + levelButtonRect.height);
-  gradient.addColorStop(0, 'rgba(140, 200, 255, 1)');
-  gradient.addColorStop(1, 'rgba(80, 150, 220, 1)');
-  ctx.fillStyle = gradient;
-  ctx.fill(Gfx.roundedRect(levelButtonRect, 8));
-  ctx.strokeStyle = 'rgba(200, 230, 255, 0.9)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke(Gfx.roundedRect(levelButtonRect, 8));
+  Gfx.pixelBevel(ctx, levelButtonRect, 'rgba(110, 200, 255, 1)', 'rgba(47, 124, 190, 1)');
   Gfx.centeredText(ctx, 'LVL UP', `bold 10px ${FONT}`, 'rgba(255, 255, 255, 1)', levelButtonRect);
   ctx.textBaseline = 'alphabetic';
 }
 
 function drawXpBar(ctx: CanvasRenderingContext2D, track: { x: number; y: number; width: number; height: number }, progress: number): void {
-  const path = Gfx.roundedRect(track, 5);
-  ctx.fillStyle = 'rgba(18, 48, 78, 0.55)';
-  ctx.fill(path);
+  ctx.fillStyle = '#082038';
+  ctx.fillRect(track.x, track.y, track.width, track.height);
+  ctx.strokeStyle = Palette.pixelNavy;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(track.x + 1, track.y + 1, track.width - 2, track.height - 2);
 
-  ctx.save();
-  ctx.clip(path);
-  const fillWidth = Math.max(8, Math.floor(track.width * progress));
-  const fillGradient = ctx.createLinearGradient(track.x, track.y, track.x, track.y + track.height);
-  fillGradient.addColorStop(0, 'rgba(130, 200, 255, 1)');
-  fillGradient.addColorStop(1, 'rgba(70, 140, 200, 1)');
-  ctx.fillStyle = fillGradient;
-  ctx.fillRect(track.x, track.y, fillWidth, track.height);
-  ctx.restore();
-
-  ctx.strokeStyle = 'rgba(150, 200, 240, 0.35)';
-  ctx.lineWidth = 1;
-  ctx.stroke(path);
+  const fillWidth = Math.max(0, Math.floor((track.width - 4) * progress));
+  ctx.fillStyle = '#6ec8ff';
+  ctx.fillRect(track.x + 2, track.y + 2, fillWidth, track.height - 4);
+  ctx.fillStyle = '#2f7cbe';
+  ctx.fillRect(track.x + 2, track.y + Math.floor(track.height / 2), fillWidth, Math.ceil(track.height / 2) - 2);
 }
 
 function drawBasicFish(ctx: CanvasRenderingContext2D, time: number): void {
+  const CARD_W = cardWidth();
   const card = { x: CARD_X, y: 122, width: CARD_W, height: 54 };
-  Gfx.glassCard(ctx, card, 12);
+  Gfx.glassCard(ctx, card, 2);
 
   const iconWell = { x: card.x + 8, y: card.y + 8, width: 38, height: 38 };
   Gfx.insetWell(ctx, iconWell, 8);
@@ -198,35 +180,73 @@ function drawBasicFish(ctx: CanvasRenderingContext2D, time: number): void {
   ctx.textBaseline = 'alphabetic';
 }
 
+function formatMeters(meters: number): string {
+  if (meters >= 10) {
+    return `${Math.round(meters)} m`;
+  }
+  if (meters >= 1) {
+    return `${meters.toFixed(1)} m`;
+  }
+  return `${meters.toFixed(2)} m`;
+}
+
+function sizeChipLabel(width: number, height: number): string {
+  const area = width * height;
+  const compact = Metrics.defaultTankWidth * Metrics.defaultTankHeight;
+  if (width / height > 3.2) {
+    return 'WIDE';
+  }
+  if (height / width > 0.55) {
+    return 'TALL';
+  }
+  if (area > compact * 1.55) {
+    return 'LARGE';
+  }
+  if (area < compact * 0.8) {
+    return 'SMALL';
+  }
+  return 'COMPACT';
+}
+
 function drawSize(ctx: CanvasRenderingContext2D): void {
+  const CARD_W = cardWidth();
   const card = { x: CARD_X, y: 182, width: CARD_W, height: 52 };
-  Gfx.glassCard(ctx, card, 12);
+  Gfx.glassCard(ctx, card, 2);
   Gfx.sectionLabel(ctx, 'AQUARIUM SIZE', card.x + 12, card.y + 8);
+
+  const widthLabel = formatMeters(Metrics.tankWidth * Metrics.metersPerPixelWidth);
+  const heightLabel = formatMeters(Metrics.tankHeight * Metrics.metersPerPixelHeight);
 
   ctx.textBaseline = 'top';
   ctx.font = `bold 14px ${FONT}`;
   ctx.fillStyle = Palette.ink;
-  ctx.fillText('2.6 m', card.x + 12, card.y + 24);
+  ctx.fillText(widthLabel, card.x + 12, card.y + 24);
+
+  const widthTextWidth = ctx.measureText(widthLabel).width;
   ctx.font = `11px ${FONT}`;
   ctx.fillStyle = Palette.inkMuted;
-  ctx.fillText('wide', card.x + 62, card.y + 27);
+  ctx.fillText('wide', card.x + 16 + widthTextWidth, card.y + 27);
 
+  const heightX = card.x + 28 + widthTextWidth + ctx.measureText('wide').width;
   ctx.font = `bold 14px ${FONT}`;
   ctx.fillStyle = Palette.ink;
-  ctx.fillText('0.92 m', card.x + 108, card.y + 24);
+  ctx.fillText(heightLabel, heightX, card.y + 24);
+
+  const heightTextWidth = ctx.measureText(heightLabel).width;
   ctx.font = `11px ${FONT}`;
   ctx.fillStyle = Palette.inkMuted;
-  ctx.fillText('tall', card.x + 168, card.y + 27);
+  ctx.fillText('tall', heightX + heightTextWidth + 6, card.y + 27);
 
   const chip = { x: card.x + card.width - 86, y: card.y + 22, width: 74, height: 20 };
   Gfx.fillRound(ctx, chip, 10, 'rgba(30, 80, 120, 0.8)', 'rgba(15, 50, 80, 0.8)');
-  Gfx.centeredText(ctx, 'COMPACT', `bold 10px ${FONT}`, 'rgba(255, 255, 255, 1)', chip);
+  Gfx.centeredText(ctx, sizeChipLabel(Metrics.tankWidth, Metrics.tankHeight), `bold 10px ${FONT}`, 'rgba(255, 255, 255, 1)', chip);
   ctx.textBaseline = 'alphabetic';
 }
 
 function drawPlacedFish(ctx: CanvasRenderingContext2D): void {
+  const CARD_W = cardWidth();
   const card = { x: CARD_X, y: 240, width: CARD_W, height: 78 };
-  Gfx.glassCard(ctx, card, 12);
+  Gfx.glassCard(ctx, card, 2);
   Gfx.sectionLabel(ctx, 'PLACED FISH', card.x + 12, card.y + 8);
 
   ctx.font = `bold 11px ${FONT}`;
@@ -240,8 +260,9 @@ function drawPlacedFish(ctx: CanvasRenderingContext2D): void {
 }
 
 function drawPlacedDecorations(ctx: CanvasRenderingContext2D): void {
+  const CARD_W = cardWidth();
   const card = { x: CARD_X, y: 324, width: CARD_W, height: 78 };
-  Gfx.glassCard(ctx, card, 12);
+  Gfx.glassCard(ctx, card, 2);
   Gfx.sectionLabel(ctx, 'PLACED DECORATIONS', card.x + 12, card.y + 8);
 
   ctx.font = `bold 11px ${FONT}`;
@@ -255,6 +276,7 @@ function drawPlacedDecorations(ctx: CanvasRenderingContext2D): void {
 }
 
 function drawSlotRow(ctx: CanvasRenderingContext2D, y: number, showFish: boolean): void {
+  const CARD_W = cardWidth();
   const slotSize = 36;
   const gap = 8;
   const count = 6;
@@ -285,8 +307,9 @@ function drawSlotRow(ctx: CanvasRenderingContext2D, y: number, showFish: boolean
 }
 
 function drawDock(ctx: CanvasRenderingContext2D): void {
+  const CARD_W = cardWidth();
   const dock = { x: CARD_X, y: 410, width: CARD_W, height: 42 };
-  Gfx.glassCard(ctx, dock, 12);
+  Gfx.glassCard(ctx, dock, 2);
 
   const iconSize = 30;
   const gap = 8;
@@ -298,15 +321,13 @@ function drawDock(ctx: CanvasRenderingContext2D): void {
   for (let i = 0; i < totalButtons; i++) {
     const iconRect = { x: startX + i * (iconSize + gap), y, width: iconSize, height: iconSize };
     const selected = i === 0;
-    const path = Gfx.roundedRect(iconRect, 8);
-    const gradient = ctx.createLinearGradient(iconRect.x, iconRect.y, iconRect.x, iconRect.y + iconRect.height);
-    gradient.addColorStop(0, selected ? 'rgba(170, 220, 255, 1)' : 'rgba(120, 180, 230, 1)');
-    gradient.addColorStop(1, selected ? 'rgba(90, 160, 220, 1)' : 'rgba(70, 130, 190, 1)');
-    ctx.fillStyle = gradient;
-    ctx.fill(path);
-    ctx.strokeStyle = selected ? 'rgba(230, 250, 255, 0.95)' : 'rgba(140, 190, 230, 0.7)';
-    ctx.lineWidth = selected ? 2 : 1;
-    ctx.stroke(path);
+    Gfx.pixelBevel(
+      ctx,
+      iconRect,
+      selected ? 'rgba(142, 216, 255, 1)' : 'rgba(90, 160, 214, 1)',
+      selected ? 'rgba(47, 124, 190, 1)' : 'rgba(32, 90, 150, 1)',
+      selected
+    );
     drawNavGlyph(ctx, iconRect, i);
   }
 }

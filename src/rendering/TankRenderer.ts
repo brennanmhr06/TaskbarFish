@@ -1,9 +1,12 @@
 import { Aquarium } from '../scene/Aquarium';
 import { Metrics } from '../drawing/Metrics';
+import { Gfx } from '../drawing/Gfx';
+import { Palette } from '../drawing/Palette';
 import { drawFish } from './Sprites';
 import { Bubble } from '../entities/Bubble';
 
 export function drawTankRenderer(ctx: CanvasRenderingContext2D, top: number, aquarium: Aquarium): void {
+  ctx.imageSmoothingEnabled = false;
   const left = 0;
   const right = Metrics.tankWidth - 1;
   const backY = top;
@@ -64,6 +67,9 @@ function drawFrontScene(ctx: CanvasRenderingContext2D, water: { x: number; y: nu
   gradient.addColorStop(1, 'rgba(15, 40, 80, 1)');
   ctx.fillStyle = gradient;
   ctx.fillRect(water.x, water.y, water.width, water.height);
+
+  Gfx.dither(ctx, water, 'rgba(8, 24, 40, 0.14)');
+  Gfx.scanlines(ctx, water, 0.07);
 
   drawLightRays(ctx, water, aquarium.time);
   drawCaustics(ctx, water, aquarium.time);
@@ -349,12 +355,14 @@ function drawBubbles(ctx: CanvasRenderingContext2D, water: { x: number; y: numbe
 }
 
 function drawSurface(ctx: CanvasRenderingContext2D, water: { x: number; y: number; width: number; height: number }, time: number): void {
-  ctx.fillStyle = 'rgba(50, 100, 150, 0.78)';
-  ctx.fillRect(water.x, water.y, water.width, 4);
+  ctx.fillStyle = '#5aa8d8';
+  ctx.fillRect(water.x, water.y, water.width, 3);
+  ctx.fillStyle = '#9ad8ff';
+  ctx.fillRect(water.x, water.y, water.width, 1);
 
-  ctx.fillStyle = 'rgba(70, 120, 170, 0.71)';
-  for (let i = 0; i < water.width; i += 6) {
-    const waveHeight = 2 + Math.sin(time * 2 + i) * 1.4;
+  ctx.fillStyle = '#7ec8f0';
+  for (let i = 0; i < water.width; i += 4) {
+    const waveHeight = Math.sin(time * 2 + i * 0.2) > 0 ? 3 : 2;
     ctx.fillRect(water.x + i, water.y + 2, 4, waveHeight);
   }
 }
@@ -430,7 +438,7 @@ function drawGlassFrame(
 ): void {
   const pillarHeight = frontBottom - Metrics.bottomThickness - frontTop + 1;
 
-  ctx.fillStyle = 'rgba(40, 90, 140, 0.78)';
+  ctx.fillStyle = '#1c4a72';
   ctx.beginPath();
   ctx.moveTo(backLeft.x, backLeft.y);
   ctx.lineTo(backRight.x, backRight.y);
@@ -439,7 +447,7 @@ function drawGlassFrame(
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(60, 110, 160, 0.86)';
+  ctx.fillStyle = '#2a6aa0';
   ctx.beginPath();
   ctx.moveTo(backLeft.x, backLeft.y);
   ctx.lineTo(frontTopLeft.x, frontTopLeft.y);
@@ -448,7 +456,7 @@ function drawGlassFrame(
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(50, 100, 150, 0.78)';
+  ctx.fillStyle = '#1a4a70';
   ctx.beginPath();
   ctx.moveTo(backRight.x, backRight.y);
   ctx.lineTo(frontTopRight.x, frontTopRight.y);
@@ -457,58 +465,63 @@ function drawGlassFrame(
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(70, 120, 170, 0.9)';
+  ctx.fillStyle = '#40a0d0';
   ctx.fillRect(left, frontTop, Metrics.glassThickness, pillarHeight);
 
-  ctx.fillStyle = 'rgba(60, 110, 160, 0.82)';
+  ctx.fillStyle = '#2a6aa0';
   ctx.fillRect(right - Metrics.glassThickness, frontTop, Metrics.glassThickness + 1, pillarHeight);
 
-  ctx.fillStyle = 'rgba(70, 120, 170, 0.86)';
+  ctx.fillStyle = '#143250';
   ctx.fillRect(left, frontBottom - Metrics.bottomThickness, right - left + 1, Metrics.bottomThickness);
 
-  ctx.fillStyle = 'rgba(100, 160, 210, 0.78)';
+  ctx.fillStyle = Palette.pixelCyan;
   ctx.fillRect(left + Metrics.glassThickness, frontBottom - Metrics.bottomThickness, right - left - 2 * Metrics.glassThickness, 2);
 
-  ctx.strokeStyle = 'rgba(100, 160, 220, 1)';
-  ctx.lineWidth = 2;
+  ctx.lineJoin = 'miter';
+  ctx.strokeStyle = Palette.pixelNavy;
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(backLeft.x, backLeft.y);
-  ctx.lineTo(backRight.x, backRight.y);
-  ctx.lineTo(frontTopRight.x, frontTopRight.y);
-  ctx.lineTo(frontBottomRight.x, frontBottomRight.y);
-  ctx.lineTo(frontBottomLeft.x, frontBottomLeft.y);
-  ctx.lineTo(frontTopLeft.x, frontTopLeft.y);
+  ctx.moveTo(Math.round(backLeft.x), Math.round(backLeft.y));
+  ctx.lineTo(Math.round(backRight.x), Math.round(backRight.y));
+  ctx.lineTo(Math.round(frontTopRight.x), Math.round(frontTopRight.y));
+  ctx.lineTo(Math.round(frontBottomRight.x), Math.round(frontBottomRight.y));
+  ctx.lineTo(Math.round(frontBottomLeft.x), Math.round(frontBottomLeft.y));
+  ctx.lineTo(Math.round(frontTopLeft.x), Math.round(frontTopLeft.y));
   ctx.closePath();
   ctx.stroke();
 
-  ctx.strokeStyle = 'rgba(80, 140, 190, 0.78)';
+  ctx.strokeStyle = Palette.pixelCyan;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.strokeStyle = Palette.pixelNavy;
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(innerBackLeft.x, innerBackLeft.y);
-  ctx.lineTo(innerBackRight.x, innerBackRight.y);
-  ctx.lineTo(innerSeamRight.x, innerSeamRight.y);
-  ctx.lineTo(innerSeamLeft.x, innerSeamLeft.y);
+  ctx.moveTo(Math.round(innerBackLeft.x), Math.round(innerBackLeft.y));
+  ctx.lineTo(Math.round(innerBackRight.x), Math.round(innerBackRight.y));
+  ctx.lineTo(Math.round(innerSeamRight.x), Math.round(innerSeamRight.y));
+  ctx.lineTo(Math.round(innerSeamLeft.x), Math.round(innerSeamLeft.y));
   ctx.closePath();
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(innerSeamLeft.x, innerSeamLeft.y);
-  ctx.lineTo(frontWater.x, frontWater.y + frontWater.height - 1);
+  ctx.moveTo(Math.round(innerSeamLeft.x), Math.round(innerSeamLeft.y));
+  ctx.lineTo(Math.round(frontWater.x), Math.round(frontWater.y + frontWater.height - 1));
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(innerSeamRight.x, innerSeamRight.y);
-  ctx.lineTo(frontWater.x + frontWater.width - 1, frontWater.y + frontWater.height - 1);
+  ctx.moveTo(Math.round(innerSeamRight.x), Math.round(innerSeamRight.y));
+  ctx.lineTo(Math.round(frontWater.x + frontWater.width - 1), Math.round(frontWater.y + frontWater.height - 1));
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(frontWater.x, frontWater.y + frontWater.height - 1);
-  ctx.lineTo(frontWater.x + frontWater.width - 1, frontWater.y + frontWater.height - 1);
+  ctx.moveTo(Math.round(frontWater.x), Math.round(frontWater.y + frontWater.height - 1));
+  ctx.lineTo(Math.round(frontWater.x + frontWater.width - 1), Math.round(frontWater.y + frontWater.height - 1));
   ctx.stroke();
 
-  ctx.fillStyle = 'rgba(120, 180, 230, 0.86)';
-  ctx.fillRect(frontTopLeft.x + 1, frontTopLeft.y + 1, 4, 1);
-  ctx.fillRect(frontTopLeft.x + 1, frontTopLeft.y + 1, 1, 4);
+  ctx.fillStyle = Palette.pixelCyan;
+  ctx.fillRect(frontTopLeft.x + 2, frontTopLeft.y + 2, 6, 2);
+  ctx.fillRect(frontTopLeft.x + 2, frontTopLeft.y + 2, 2, 6);
 }
 
 function parseRgba(color: string): { r: number; g: number; b: number; a: number } {

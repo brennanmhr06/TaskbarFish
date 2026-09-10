@@ -2,12 +2,15 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = {
-  entry: './src/renderer/index.tsx',
+  entry: {
+    renderer: './src/renderer/index.tsx',
+    auth: './src/auth/index.tsx',
+  },
   target: 'electron-renderer',
   mode: 'none',
   devtool: 'cheap-module-source-map',
   output: {
-    filename: 'renderer.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
   },
   resolve: {
@@ -30,6 +33,7 @@ module.exports = {
       apply: (compiler) => {
         compiler.hooks.afterEmit.tap('CopyHtml', () => {
           fs.copyFileSync('src/renderer.html', 'dist/renderer.html');
+          fs.copyFileSync('src/auth.html', 'dist/auth.html');
         });
       },
     },

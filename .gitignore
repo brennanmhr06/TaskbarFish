@@ -99,3 +99,55 @@ coverage/
 
 # TypeScript
 *.tsbuildinfo
+
+# Project-specific files
+todo.todo
+.devin/
+
+# Electron-specific
+*.asar
+app/
+
+# Additional environment files
+.env.production
+.env.staging
+.env.development
+.env.test
+
+# IDE and editor files
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS temporary files
+.TemporaryItems/
+.temp/
+tmp/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Debug and profiling
+*.cpuprofile
+*.heapsnapshot
+
+# Database files (local development)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs (additional)
+logs/
+*.log.*
+lerna-debug.log*
+
+# Deployment
+.now/
+.vercel/
+.netlify/
