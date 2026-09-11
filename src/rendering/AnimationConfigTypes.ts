@@ -37,7 +37,7 @@ export function createSpriteClip(
     speedInfluence,
     frames: padded,
     width,
-    height,
+    height
   };
 }
 

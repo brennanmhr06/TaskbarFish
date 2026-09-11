@@ -10,7 +10,7 @@ export interface SavedFish {
   facingRight: boolean;
   body: string;
   fin: string;
-  animationPhase: number;
+  animPhase: number;
   hunger?: number;
   maxAlgae?: number;
   lastEatenTime?: number;

@@ -37,6 +37,5 @@ export function clearSession(): void {
   try {
     fs.unlinkSync(sessionPath());
   } catch {
-    // already gone
   }
 }

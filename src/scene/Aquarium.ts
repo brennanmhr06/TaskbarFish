@@ -18,7 +18,7 @@ export function createAquarium(): Aquarium {
     fish: [],
     totalXP: 0,
     lastAlgaeSpawn: 0,
-    algaeSpawnInterval: 5000, // Spawn algae every 5 seconds
+    algaeSpawnInterval: 5000,
   };
 }
 
@@ -67,14 +67,12 @@ export function tickAquarium(aquarium: Aquarium, dt: number): void {
   const waterHeight = Metrics.tankHeight - Metrics.bottomThickness;
   const margin = 28;
 
-  // Spawn new algae periodically
   if (currentTime - aquarium.lastAlgaeSpawn > aquarium.algaeSpawnInterval) {
-    if (aquarium.algae.length < 15) { // Max 15 algae at once
+    if (aquarium.algae.length < 15) {
       const algaeX = 20 + Math.random() * (waterWidth - 40);
-      const algaeY = 20 + Math.random() * (waterHeight - 40); // Spawn throughout the tank
+      const algaeY = 20 + Math.random() * (waterHeight - 40);
       const algaeSize = 3 + Math.random() * 3;
-      const algaeXP = Math.round(15 + algaeSize * 3); // Increased XP values
-      // Random drift direction and gentle floating speed
+      const algaeXP = Math.round(15 + algaeSize * 3);
       const driftX = (Math.random() - 0.5) * 0.4;
       const driftY = (Math.random() - 0.5) * 0.3;
       aquarium.algae.push(createAlgae(algaeX, algaeY, algaeSize, driftX, driftY, algaeXP));
@@ -82,29 +80,23 @@ export function tickAquarium(aquarium: Aquarium, dt: number): void {
     }
   }
 
-  // Update algae movement
   for (const algae of aquarium.algae) {
     algae.x += algae.drift * dt;
     algae.y += algae.speed * dt;
 
-    // Bounce off walls
     if (algae.x < 8 || algae.x > waterWidth - algae.size - 8) {
       algae.drift *= -1;
     }
 
-    // Bounce off top and bottom
     if (algae.y < 6 || algae.y > waterHeight - algae.size - 6) {
       algae.speed *= -1;
     }
   }
 
-  // Update fish behavior
   for (const fish of aquarium.fish) {
-    // Check if fish can eat more algae
     const canEatMore = fish.hunger < fish.maxAlgae;
     
     if (canEatMore) {
-      // Find nearest algae
       let nearestAlgaeIndex = -1;
       let nearestDistance = Infinity;
       
@@ -121,24 +113,18 @@ export function tickAquarium(aquarium: Aquarium, dt: number): void {
       }
       
       if (nearestAlgaeIndex !== -1) {
-        // Chase the algae
         const algae = aquarium.algae[nearestAlgaeIndex];
         const dx = algae.x - fish.x;
         const dy = algae.y - fish.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance > 5) {
-          // Move towards algae
-          const moveSpeed = fish.speed * 1.2; // Move slightly faster when chasing
+          const moveSpeed = fish.speed * 1.2;
           fish.x += (dx / distance) * moveSpeed * dt;
           fish.y += (dy / distance) * moveSpeed * dt;
-          
-          // Update facing direction
           fish.facingRight = dx > 0;
-          
           fish.targetAlgae = nearestAlgaeIndex;
         } else {
-          // Eat the algae
           aquarium.totalXP += algae.xpValue;
           fish.hunger++;
           fish.lastEatenTime = currentTime;
@@ -146,7 +132,6 @@ export function tickAquarium(aquarium: Aquarium, dt: number): void {
           fish.targetAlgae = null;
         }
       } else {
-        // Normal swimming when no algae available
         fish.x += (fish.facingRight ? fish.speed : -fish.speed) * dt;
         if (fish.x > waterWidth - margin) {
           fish.x = waterWidth - margin;
@@ -158,7 +143,6 @@ export function tickAquarium(aquarium: Aquarium, dt: number): void {
         fish.targetAlgae = null;
       }
     } else {
-      // Fish is full, normal swimming
       fish.x += (fish.facingRight ? fish.speed : -fish.speed) * dt;
       if (fish.x > waterWidth - margin) {
         fish.x = waterWidth - margin;
@@ -169,9 +153,8 @@ export function tickAquarium(aquarium: Aquarium, dt: number): void {
       }
       fish.targetAlgae = null;
       
-      // Reset hunger when full duration is over
       if (currentTime - fish.lastEatenTime >= fish.fullDuration) {
-        fish.hunger = 0; // Reset hunger when no longer full
+        fish.hunger = 0;
       }
     }
   }

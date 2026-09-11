@@ -310,7 +310,7 @@ function drawFishSchool(ctx: CanvasRenderingContext2D, water: { x: number; y: nu
       fish.body,
       fish.fin,
       aquarium.time,
-      fish.animationPhase,
+      fish.animPhase,
       0.35
     );
   }
@@ -322,42 +322,34 @@ function drawAlgae(ctx: CanvasRenderingContext2D, water: { x: number; y: number;
     const y = water.y + alg.y;
     const size = alg.size;
 
-    // Draw algae as small leafy pieces
     const sway = Math.sin(time * 1.5 + alg.x * 0.1) * 2;
     
-    // Main stem color
     const stemColor = 'rgba(60, 140, 60, 0.7)';
     const leafColor = 'rgba(80, 180, 80, 0.6)';
     const leafHighlight = 'rgba(100, 200, 100, 0.5)';
     
-    // Draw central stem
     ctx.fillStyle = stemColor;
     ctx.fillRect(x + size/2 - 1, y, 2, size);
     
-    // Draw leaves extending from stem
     const leafCount = Math.floor(size / 2);
     for (let i = 0; i < leafCount; i++) {
       const leafY = y + (i * size / leafCount);
       const leafSway = sway * (i / leafCount);
       const side = i % 2 === 0 ? 1 : -1;
       
-      // Main leaf
       ctx.fillStyle = leafColor;
       ctx.fillRect(x + size/2 + leafSway * side, leafY, size/2 * side, 2);
       
-      // Leaf highlight
       ctx.fillStyle = leafHighlight;
       ctx.fillRect(x + size/2 + leafSway * side + (side > 0 ? 0 : -1), leafY + 1, size/4 * side, 1);
     }
     
-    // Add small glow effect
     const glowGradient = ctx.createRadialGradient(x + size/2, y + size/2, 0, x + size/2, y + size/2, size);
     glowGradient.addColorStop(0, 'rgba(100, 200, 100, 0.3)');
     glowGradient.addColorStop(1, 'rgba(100, 200, 100, 0)');
     ctx.fillStyle = glowGradient;
     ctx.fillRect(x - size/2, y - size/2, size * 2, size * 2);
     
-    // Add XP indicator (smaller and subtler)
     ctx.fillStyle = 'rgba(255, 255, 200, 0.7)';
     ctx.font = '6px monospace';
     ctx.textAlign = 'center';

@@ -37,7 +37,7 @@ const AuthApp: React.FC = () => {
     window.addEventListener('pointerup', up);
   };
 
-  const submitSignup = async (e: FormEvent) => {
+  const handleSignup = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setBusy(true);
@@ -54,7 +54,7 @@ const AuthApp: React.FC = () => {
     }
   };
 
-  const submitLogin = async (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setBusy(true);
@@ -88,7 +88,7 @@ const AuthApp: React.FC = () => {
           </p>
 
           {view === 'signup' ? (
-            <form className="pixel-form" onSubmit={submitSignup}>
+            <form className="pixel-form" onSubmit={handleSignup}>
               <label>
                 USERNAME
                 <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" maxLength={20} required />
@@ -121,7 +121,7 @@ const AuthApp: React.FC = () => {
               </button>
             </form>
           ) : (
-            <form className="pixel-form" onSubmit={submitLogin}>
+            <form className="pixel-form" onSubmit={handleLogin}>
               <label>
                 USERNAME / EMAIL
                 <input value={identifier} onChange={(e) => setIdentifier(e.target.value)} autoComplete="username" required />

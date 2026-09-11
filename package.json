@@ -23,5 +23,8 @@
     "mongodb": "^6.21.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "allowScripts": {
+    "electron@28.3.3": true
   }
 }
