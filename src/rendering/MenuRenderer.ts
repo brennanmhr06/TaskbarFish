@@ -113,12 +113,6 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
 
   Gfx.sectionLabel(ctx, 'AQUARIUM LEVEL', card.x + 12, card.y + 8);
 
-  // Calculate level based on XP with increasing requirements
-  // Level 1: 0-99 XP (100 XP needed)
-  // Level 2: 100-299 XP (200 XP needed) 
-  // Level 3: 300-599 XP (300 XP needed)
-  // Level 4: 600-999 XP (400 XP needed)
-  // Formula: XP needed for level n = n * 100
   let level = 1;
   let currentLevelXP = totalXP;
   let xpForNextLevel = 100;
@@ -134,7 +128,6 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
     }
   }
 
-  // Draw level badge
   const levelBadge = {
     x: card.x + 12,
     y: card.y + 24,
@@ -142,19 +135,16 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
     height: 36,
   };
   
-  // Level badge background
   const badgeGradient = ctx.createLinearGradient(levelBadge.x, levelBadge.y, levelBadge.x, levelBadge.y + levelBadge.height);
   badgeGradient.addColorStop(0, 'rgba(100, 180, 255, 0.9)');
   badgeGradient.addColorStop(1, 'rgba(60, 140, 220, 0.9)');
   ctx.fillStyle = badgeGradient;
   ctx.fillRect(levelBadge.x, levelBadge.y, levelBadge.width, levelBadge.height);
   
-  // Badge border
   ctx.strokeStyle = 'rgba(40, 100, 160, 1)';
   ctx.lineWidth = 2;
   ctx.strokeRect(levelBadge.x + 1, levelBadge.y + 1, levelBadge.width - 2, levelBadge.height - 2);
   
-  // Level number
   ctx.font = `bold 18px ${FONT}`;
   ctx.fillStyle = '#ffffff';
   ctx.textBaseline = 'middle';
@@ -162,7 +152,6 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
   ctx.fillText(`L${level}`, levelBadge.x + levelBadge.width / 2, levelBadge.y + levelBadge.height / 2);
   ctx.textAlign = 'left';
 
-  // XP bar
   const expBar = {
     x: card.x + 64,
     y: card.y + 28,
@@ -171,13 +160,11 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
   };
   drawXpBar(ctx, expBar, currentLevelXP / xpForNextLevel);
 
-  // XP text
   ctx.font = `10px ${FONT}`;
   ctx.fillStyle = Palette.inkMuted;
   ctx.textBaseline = 'middle';
   ctx.fillText(`${currentLevelXP} / ${xpForNextLevel} XP`, expBar.x, expBar.y + expBar.height + 12);
   
-  // Level progress percentage
   const progressPercent = Math.floor((currentLevelXP / xpForNextLevel) * 100);
   ctx.textAlign = 'right';
   ctx.fillText(`${progressPercent}%`, card.x + card.width - 12, expBar.y + expBar.height + 12);
@@ -186,16 +173,13 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
 }
 
 function drawXpBar(ctx: CanvasRenderingContext2D, track: { x: number; y: number; width: number; height: number }, progress: number): void {
-  // Background track
   ctx.fillStyle = '#0a1a2a';
   ctx.fillRect(track.x, track.y, track.width, track.height);
   
-  // Track border
   ctx.strokeStyle = 'rgba(30, 80, 120, 0.8)';
   ctx.lineWidth = 2;
   ctx.strokeRect(track.x + 1, track.y + 1, track.width - 2, track.height - 2);
 
-  // XP fill with gradient
   const fillWidth = Math.max(0, Math.floor((track.width - 4) * progress));
   if (fillWidth > 0) {
     const gradient = ctx.createLinearGradient(track.x + 2, track.y, track.x + 2 + fillWidth, track.y);
@@ -205,7 +189,6 @@ function drawXpBar(ctx: CanvasRenderingContext2D, track: { x: number; y: number;
     ctx.fillStyle = gradient;
     ctx.fillRect(track.x + 2, track.y + 2, fillWidth, track.height - 4);
     
-    // Add shine effect
     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.fillRect(track.x + 2, track.y + 2, fillWidth, Math.floor(track.height / 2) - 2);
   }

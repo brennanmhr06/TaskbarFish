@@ -8,12 +8,12 @@ export interface Fish {
   facingRight: boolean;
   body: string;
   fin: string;
-  animationPhase: number;
-  hunger: number; // Current hunger level (0 = full, maxAlgae = hungry)
-  maxAlgae: number; // How many algae it can eat before getting full
-  lastEatenTime: number; // Timestamp when last ate
-  fullDuration: number; // How long (in ms) it stays full after eating
-  targetAlgae: number | null; // Index of algae it's currently chasing
+  animPhase: number;
+  hunger: number;
+  maxAlgae: number;
+  lastEatenTime: number;
+  fullDuration: number;
+  targetAlgae: number | null;
 }
 
 export function createFish(
@@ -27,7 +27,7 @@ export function createFish(
   bobSpeed: number,
   phase: number,
   maxAlgae: number = 3,
-  fullDuration: number = 180000 // 3 minutes in milliseconds
+  fullDuration: number = 180000
 ): Fish {
   return {
     x,
@@ -39,7 +39,7 @@ export function createFish(
     bob,
     bobSpeed,
     phase,
-    animationPhase: phase * 2.5,
+    animPhase: phase * 2.5,
     hunger: 0,
     maxAlgae,
     lastEatenTime: 0,

@@ -277,7 +277,7 @@ ipcMain.handle('auth:signup', async (_event, payload: { username: unknown; email
     const result = await signupUser({
       username: String(payload.username),
       email: String(payload.email),
-      password: String(payload.password),
+      password: String(payload.password)
     });
     if (result.ok && result.user) {
       await beginSession({ id: result.user.id, username: result.user.username });
@@ -299,7 +299,7 @@ ipcMain.handle('auth:login', async (_event, payload: { identifier: unknown; pass
   try {
     const result = await loginUser({
       identifier: payload.identifier,
-      password: payload.password,
+      password: payload.password
     });
     if (result.ok && result.user) {
       await beginSession({ id: result.user.id, username: result.user.username });

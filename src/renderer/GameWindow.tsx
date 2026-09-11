@@ -159,7 +159,6 @@ const GameWindow: React.FC = () => {
           return;
         }
         if (state?.fish?.length) {
-          // Merge saved fish data with new fish properties
           const currentTime = Date.now();
           aquariumRef.current.fish = state.fish.map((savedFish) => {
             const fish = createFish(
@@ -176,11 +175,9 @@ const GameWindow: React.FC = () => {
               savedFish.fullDuration ?? 180000
             );
             
-            // Apply saved hunger state
             fish.hunger = savedFish.hunger ?? 0;
             fish.lastEatenTime = savedFish.lastEatenTime ?? 0;
             
-            // Reset hunger if fish was full and enough time has passed
             if (fish.hunger >= fish.maxAlgae && 
                 fish.lastEatenTime && 
                 (currentTime - fish.lastEatenTime >= fish.fullDuration)) {
@@ -192,12 +189,10 @@ const GameWindow: React.FC = () => {
           log.success(`Loaded ${state.fish.length} fish from MongoDB`);
         }
         
-        // Load total XP
         if (state?.totalXP !== undefined) {
           aquariumRef.current.totalXP = state.totalXP;
           log.success(`Loaded total XP: ${state.totalXP}`);
         } else {
-          // If no saved XP, keep the default
           log.success('No saved XP found, using defaults');
         }
         if (state?.tankWidth && state?.tankHeight) {
@@ -219,10 +214,9 @@ const GameWindow: React.FC = () => {
 
     const interval = window.setInterval(save, 5000);
 
-    // Start background music
     const backgroundMusic = document.getElementById('background-music') as HTMLAudioElement;
     if (backgroundMusic) {
-      backgroundMusic.volume = 0.3; // Set volume to 30% for nice ambient level
+      backgroundMusic.volume = 0.3;
       backgroundMusic.play().catch((err) => {
         log.warn(`Could not play background music: ${String(err)}`);
       });
@@ -233,7 +227,6 @@ const GameWindow: React.FC = () => {
       window.clearInterval(interval);
       save();
       
-      // Stop background music when component unmounts
       if (backgroundMusic) {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;

@@ -35,7 +35,6 @@ module.exports = {
           fs.copyFileSync('src/renderer.html', 'dist/renderer.html');
           fs.copyFileSync('src/auth.html', 'dist/auth.html');
           
-          // Copy sounds folder
           const soundsSource = path.join(__dirname, 'src/sounds');
           const soundsDest = path.join(__dirname, 'dist/sounds');
           if (!fs.existsSync(soundsDest)) {

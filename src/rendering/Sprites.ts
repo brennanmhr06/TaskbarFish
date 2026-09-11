@@ -209,13 +209,11 @@ export function drawNavGlyph(ctx: CanvasRenderingContext2D, bounds: { x: number;
   const scale = bounds.width / 30;
 
   switch (kind) {
-    case 0: // Aquarium/Fish icon
-      // Fish body
+    case 0:
       ctx.fillStyle = 'rgba(255, 168, 48, 1)';
       ctx.beginPath();
       ctx.ellipse(cx, cy, 8 * scale, 5 * scale, 0, 0, Math.PI * 2);
       ctx.fill();
-      // Fish tail
       ctx.fillStyle = 'rgba(232, 96, 40, 1)';
       ctx.beginPath();
       ctx.moveTo(cx - 7 * scale, cy);
@@ -223,7 +221,6 @@ export function drawNavGlyph(ctx: CanvasRenderingContext2D, bounds: { x: number;
       ctx.lineTo(cx - 12 * scale, cy + 4 * scale);
       ctx.closePath();
       ctx.fill();
-      // Fish eye
       ctx.fillStyle = 'rgba(255, 255, 255, 1)';
       ctx.beginPath();
       ctx.arc(cx + 3 * scale, cy - 1 * scale, 2 * scale, 0, Math.PI * 2);
@@ -232,7 +229,6 @@ export function drawNavGlyph(ctx: CanvasRenderingContext2D, bounds: { x: number;
       ctx.beginPath();
       ctx.arc(cx + 4 * scale, cy - 1 * scale, 1 * scale, 0, Math.PI * 2);
       ctx.fill();
-      // Fish fin
       ctx.fillStyle = 'rgba(255, 140, 32, 1)';
       ctx.beginPath();
       ctx.moveTo(cx, cy - 4 * scale);
@@ -241,13 +237,11 @@ export function drawNavGlyph(ctx: CanvasRenderingContext2D, bounds: { x: number;
       ctx.closePath();
       ctx.fill();
       break;
-    case 1: // Sun icon
-      // Sun body
+    case 1:
       ctx.fillStyle = 'rgba(255, 200, 60, 1)';
       ctx.beginPath();
       ctx.arc(cx, cy, 6 * scale, 0, Math.PI * 2);
       ctx.fill();
-      // Sun rays
       ctx.fillStyle = 'rgba(255, 220, 100, 1)';
       for (let i = 0; i < 8; i++) {
         const angle = (i / 8) * Math.PI * 2;
@@ -257,36 +251,29 @@ export function drawNavGlyph(ctx: CanvasRenderingContext2D, bounds: { x: number;
         ctx.arc(rayX, rayY, 2 * scale, 0, Math.PI * 2);
         ctx.fill();
       }
-      // Sun highlight
       ctx.fillStyle = 'rgba(255, 255, 200, 0.5)';
       ctx.beginPath();
       ctx.arc(cx - 2 * scale, cy - 2 * scale, 2 * scale, 0, Math.PI * 2);
       ctx.fill();
       break;
-    case 2: // Heart icon
-      // Heart shape using curves
+    case 2:
       ctx.fillStyle = 'rgba(236, 72, 120, 1)';
       ctx.beginPath();
       ctx.moveTo(cx, cy + 4 * scale);
       ctx.bezierCurveTo(cx - 8 * scale, cy - 2 * scale, cx - 8 * scale, cy - 8 * scale, cx, cy - 6 * scale);
       ctx.bezierCurveTo(cx + 8 * scale, cy - 8 * scale, cx + 8 * scale, cy - 2 * scale, cx, cy + 4 * scale);
       ctx.fill();
-      // Heart highlight
       ctx.fillStyle = 'rgba(255, 150, 180, 0.6)';
       ctx.beginPath();
       ctx.arc(cx - 3 * scale, cy - 5 * scale, 2 * scale, 0, Math.PI * 2);
       ctx.fill();
       break;
-    case 3: // Music icon
-      // Music note
+    case 3:
       ctx.fillStyle = 'rgba(180, 130, 255, 1)';
-      // Note head
       ctx.beginPath();
       ctx.ellipse(cx - 2 * scale, cy + 3 * scale, 4 * scale, 3 * scale, -0.3, 0, Math.PI * 2);
       ctx.fill();
-      // Note stem
       ctx.fillRect(cx + 1 * scale, cy - 6 * scale, 2 * scale, 9 * scale);
-      // Note flag
       ctx.beginPath();
       ctx.moveTo(cx + 3 * scale, cy - 6 * scale);
       ctx.lineTo(cx + 8 * scale, cy - 3 * scale);
@@ -294,44 +281,34 @@ export function drawNavGlyph(ctx: CanvasRenderingContext2D, bounds: { x: number;
       ctx.lineTo(cx + 3 * scale, cy - 3 * scale);
       ctx.closePath();
       ctx.fill();
-      // Small note
       ctx.beginPath();
       ctx.ellipse(cx + 6 * scale, cy + 1 * scale, 3 * scale, 2 * scale, -0.3, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillRect(cx + 8 * scale, cy - 4 * scale, 1.5 * scale, 5 * scale);
       break;
-    case 4: // Plant icon
-      // Plant stem
+    case 4:
       ctx.fillStyle = 'rgba(34, 139, 34, 1)';
       ctx.fillRect(cx - 1 * scale, cy - 2 * scale, 2 * scale, 8 * scale);
-      // Left leaf
       ctx.fillStyle = 'rgba(50, 205, 50, 1)';
       ctx.beginPath();
       ctx.ellipse(cx - 5 * scale, cy, 4 * scale, 2 * scale, -0.5, 0, Math.PI * 2);
       ctx.fill();
-      // Right leaf
       ctx.beginPath();
       ctx.ellipse(cx + 5 * scale, cy - 2 * scale, 4 * scale, 2 * scale, 0.5, 0, Math.PI * 2);
       ctx.fill();
-      // Top leaf
       ctx.fillStyle = 'rgba(60, 180, 60, 1)';
       ctx.beginPath();
       ctx.ellipse(cx, cy - 5 * scale, 3 * scale, 4 * scale, 0, 0, Math.PI * 2);
       ctx.fill();
-      // Leaf details
       ctx.fillStyle = 'rgba(40, 160, 40, 0.5)';
       ctx.fillRect(cx - 1 * scale, cy - 6 * scale, 2 * scale, 3 * scale);
       break;
-    case 5: // Gift icon
-      // Gift box
+    case 5:
       ctx.fillStyle = 'rgba(236, 72, 153, 1)';
       ctx.fillRect(cx - 7 * scale, cy - 3 * scale, 14 * scale, 10 * scale);
-      // Gift ribbon vertical
       ctx.fillStyle = 'rgba(255, 182, 193, 1)';
       ctx.fillRect(cx - 2 * scale, cy - 3 * scale, 4 * scale, 10 * scale);
-      // Gift ribbon horizontal
       ctx.fillRect(cx - 7 * scale, cy, 14 * scale, 3 * scale);
-      // Gift bow
       ctx.fillStyle = 'rgba(255, 105, 180, 1)';
       ctx.beginPath();
       ctx.arc(cx - 3 * scale, cy - 5 * scale, 3 * scale, 0, Math.PI * 2);
@@ -339,12 +316,10 @@ export function drawNavGlyph(ctx: CanvasRenderingContext2D, bounds: { x: number;
       ctx.beginPath();
       ctx.arc(cx + 3 * scale, cy - 5 * scale, 3 * scale, 0, Math.PI * 2);
       ctx.fill();
-      // Bow center
       ctx.fillStyle = 'rgba(255, 182, 193, 1)';
       ctx.beginPath();
       ctx.arc(cx, cy - 4 * scale, 2 * scale, 0, Math.PI * 2);
       ctx.fill();
-      // Box highlight
       ctx.fillStyle = 'rgba(255, 150, 200, 0.3)';
       ctx.fillRect(cx - 6 * scale, cy - 2 * scale, 4 * scale, 2 * scale);
       break;

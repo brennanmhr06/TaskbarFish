@@ -60,7 +60,7 @@ export const log = {
   },
   debug(message: string, extra?: unknown): void {
     write('debug', message, extra);
-  },
+  }
 };
 
 export function isLogLevel(value: unknown): value is LogLevel {
