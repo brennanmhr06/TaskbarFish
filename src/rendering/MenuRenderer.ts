@@ -18,6 +18,13 @@ function rectBottom(rect: { x: number; y: number; width: number; height: number 
   return rect.y + rect.height;
 }
 
+function formatNumber(num: number): string {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'k';
+  }
+  return num.toString();
+}
+
 export function drawMenuRenderer(ctx: CanvasRenderingContext2D, time: number, totalXP: number = 0): void {
   ctx.imageSmoothingEnabled = false;
   const panel = { x: 0, y: 0, width: Metrics.tankWidth, height: Metrics.menuHeight };
@@ -118,11 +125,11 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
   let xpForNextLevel = 100;
   
   for (let l = 1; l <= 50; l++) {
-    const xpNeeded = l * 100;
+    const xpNeeded = l * l * 50 + l * 50;
     if (totalXP >= xpNeeded) {
       level = l + 1;
       currentLevelXP = totalXP - xpNeeded;
-      xpForNextLevel = (l + 1) * 100;
+      xpForNextLevel = (l + 1) * (l + 1) * 50 + (l + 1) * 50;
     } else {
       break;
     }
@@ -160,13 +167,14 @@ function drawLevel(ctx: CanvasRenderingContext2D, totalXP: number): void {
   };
   drawXpBar(ctx, expBar, currentLevelXP / xpForNextLevel);
 
-  ctx.font = `10px ${FONT}`;
-  ctx.fillStyle = Palette.inkMuted;
+  ctx.font = `bold 11px ${FONT}`;
+  ctx.fillStyle = Palette.ink;
   ctx.textBaseline = 'middle';
-  ctx.fillText(`${currentLevelXP} / ${xpForNextLevel} XP`, expBar.x, expBar.y + expBar.height + 12);
+  ctx.fillText(`${formatNumber(currentLevelXP)} / ${formatNumber(xpForNextLevel)} XP`, expBar.x, expBar.y + expBar.height + 12);
   
   const progressPercent = Math.floor((currentLevelXP / xpForNextLevel) * 100);
   ctx.textAlign = 'right';
+  ctx.fillStyle = Palette.accent;
   ctx.fillText(`${progressPercent}%`, card.x + card.width - 12, expBar.y + expBar.height + 12);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';

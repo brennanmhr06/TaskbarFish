@@ -316,6 +316,13 @@ function drawFishSchool(ctx: CanvasRenderingContext2D, water: { x: number; y: nu
   }
 }
 
+function formatNumber(num: number): string {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'k';
+  }
+  return num.toString();
+}
+
 function drawAlgae(ctx: CanvasRenderingContext2D, water: { x: number; y: number; width: number; height: number }, algae: Algae[], time: number): void {
   for (const alg of algae) {
     const x = water.x + alg.x;
@@ -350,10 +357,14 @@ function drawAlgae(ctx: CanvasRenderingContext2D, water: { x: number; y: number;
     ctx.fillStyle = glowGradient;
     ctx.fillRect(x - size/2, y - size/2, size * 2, size * 2);
     
-    ctx.fillStyle = 'rgba(255, 255, 200, 0.7)';
-    ctx.font = '6px monospace';
+    // Draw text shadow for better readability
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.font = 'bold 8px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(`+${alg.xpValue}XP`, x + size/2, y - 2);
+    ctx.fillText(`+${formatNumber(alg.xpValue)} XP`, x + size/2 + 1, y - 1);
+    
+    ctx.fillStyle = 'rgba(255, 255, 200, 1)';
+    ctx.fillText(`+${formatNumber(alg.xpValue)} XP`, x + size/2, y - 2);
   }
 }
 

@@ -81,8 +81,13 @@ export function tickAquarium(aquarium: Aquarium, dt: number): void {
   }
 
   for (const algae of aquarium.algae) {
-    algae.x += algae.drift * dt;
-    algae.y += algae.speed * dt;
+    // Add smooth wave-like floating motion
+    const waveX = Math.sin(aquarium.time * 1.5 + algae.x * 0.03) * 0.5;
+    const waveY = Math.cos(aquarium.time * 1.2 + algae.y * 0.03) * 0.4;
+    const circularMotion = Math.sin(aquarium.time * 0.8 + algae.x * 0.02) * 0.2;
+    
+    algae.x += (algae.drift + waveX + circularMotion) * dt;
+    algae.y += (algae.speed + waveY) * dt;
 
     if (algae.x < 8 || algae.x > waterWidth - algae.size - 8) {
       algae.drift *= -1;
