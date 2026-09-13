@@ -261,28 +261,28 @@ function drawSize(ctx: CanvasRenderingContext2D): void {
   const heightLabel = formatMeters(Metrics.tankHeight * Metrics.metersPerPixelHeight);
 
   ctx.textBaseline = 'top';
-  ctx.font = `bold 14px ${FONT}`;
+  
+  // Display dimensions in a cleaner format
+  ctx.font = `bold 16px ${FONT}`;
   ctx.fillStyle = Palette.ink;
-  ctx.fillText(widthLabel, card.x + 12, card.y + 24);
+  const dimensionsText = `${widthLabel} × ${heightLabel}`;
+  ctx.fillText(dimensionsText, card.x + 12, card.y + 24);
 
-  const widthTextWidth = ctx.measureText(widthLabel).width;
-  ctx.font = `11px ${FONT}`;
-  ctx.fillStyle = Palette.inkMuted;
-  ctx.fillText('wide', card.x + 16 + widthTextWidth, card.y + 27);
-
-  const heightX = card.x + 28 + widthTextWidth + ctx.measureText('wide').width;
-  ctx.font = `bold 14px ${FONT}`;
-  ctx.fillStyle = Palette.ink;
-  ctx.fillText(heightLabel, heightX, card.y + 24);
-
-  const heightTextWidth = ctx.measureText(heightLabel).width;
-  ctx.font = `11px ${FONT}`;
-  ctx.fillStyle = Palette.inkMuted;
-  ctx.fillText('tall', heightX + heightTextWidth + 6, card.y + 27);
-
-  const chip = { x: card.x + card.width - 86, y: card.y + 22, width: 74, height: 20 };
-  Gfx.fillRound(ctx, chip, 10, 'rgba(30, 80, 120, 0.8)', 'rgba(15, 50, 80, 0.8)');
-  Gfx.centeredText(ctx, sizeChipLabel(Metrics.tankWidth, Metrics.tankHeight), `bold 10px ${FONT}`, 'rgba(255, 255, 255, 1)', chip);
+  // Calculate position for size chip
+  const chipLabel = sizeChipLabel(Metrics.tankWidth, Metrics.tankHeight);
+  ctx.font = `bold 10px ${FONT}`;
+  const chipWidth = ctx.measureText(chipLabel).width + 16;
+  
+  const chip = { 
+    x: card.x + card.width - chipWidth - 12, 
+    y: card.y + 22, 
+    width: chipWidth, 
+    height: 20 
+  };
+  
+  // Make the chip more prominent with better colors
+  Gfx.fillRound(ctx, chip, 10, 'rgba(60, 140, 220, 0.9)', 'rgba(40, 100, 160, 0.9)');
+  Gfx.centeredText(ctx, chipLabel, `bold 10px ${FONT}`, 'rgba(255, 255, 255, 1)', chip);
   ctx.textBaseline = 'alphabetic';
 }
 
