@@ -101,7 +101,6 @@ coverage/
 *.tsbuildinfo
 
 # Project-specific files
-todo.todo
 .devin/
 
 # Electron-specific
